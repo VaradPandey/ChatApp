@@ -15,14 +15,17 @@ const registerUser=asyncHandler(async(req,res)=>{
         throw new ApiError(400,"User already exists");
     }
 
-    const avatarLocalPath=req.file?.path;
-    const avatar=await uploadOnCloudinary(avatarLocalPath);
+    let avatarUrl;
+    if(req.file.path){
+        const uploaded=await uploadOnCloudinary(req.file.path);
+        avatarUrl=uploaded?.url||"";
+    }
 
     const user=await User.create({
         username,
         email,
         password,
-        avatar: avatar.url||"",
+        avatar: avatarUrl,
     });
 
     const createdUser=await User.findById(user._id).select("-password");
@@ -33,6 +36,52 @@ const registerUser=asyncHandler(async(req,res)=>{
 
 });
 
+const loginUser=asyncHandler(async (req,res)=>{
+    const {username,email,password}=req.body;
+
+    if(!username && !email){
+        throw new ApiError(400,"Give either email or username");
+    }
+    if(!password){
+        throw new ApiError(400,"Password is required");
+    }
+
+    const user=await User.findOne({
+        $or: [{username},{email}]
+    });
+
+    if(!user){
+        throw new ApiError(404,"No user found with that username or email");
+    }
+
+    const matchPassword= await user.isPasswordCorrect(password);
+
+    if(!matchPassword){
+        throw new ApiError(400,"Password Not Matched");
+    }
+
+    const token=await user.setUser();
+
+    const loggedInUser=await User.findById(user._id).select("-password");
+
+    return res
+    .status(200)
+    .json(new ApiResponse(200,{
+        user:loggedInUser,
+        token,
+    },"User Logged In Successfully"));
+
+});
+
+const getUserProfile=asyncHandler(async (req,res)=>{
+    console.log(req.user);
+    return res
+    .status(200)
+    .json(new ApiResponse(200,req.user,"User Profile Fetched"));
+});
+
 export {
     registerUser,
+    loginUser,
+    getUserProfile,
 }

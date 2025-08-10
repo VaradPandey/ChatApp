@@ -19,10 +19,14 @@ app.use(express.urlencoded({
 app.use(express.static("public"));
 app.use(cookieParser());
 
+app.get('/',(req,res)=>{
+    res.send('HOMEPAGE');
+})
+
 
 //USER ROUTES SETUP
 import userRouter from "./routes/user.route.js";
-app.use("/api/user",userRouter)
+app.use("/api/user",userRouter);
 
 
 export {app};
