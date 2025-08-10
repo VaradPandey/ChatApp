@@ -20,9 +20,9 @@ app.use(express.static("public"));
 app.use(cookieParser());
 
 
-app.get('/:name',(req,res)=>{
-    const {name}=req.params;
-    res.send(`HI ${name}`);
-});
+//USER ROUTES SETUP
+import userRouter from "./routes/user.route.js";
+app.use("/api/user",userRouter)
+
 
 export {app};
