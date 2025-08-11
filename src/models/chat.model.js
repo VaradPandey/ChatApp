@@ -20,7 +20,7 @@ const chatSchema=new mongoose.Schema({
         }
     ],
     grpImage:{
-        type: String //cloudinary url
+        type: String, //cloudinary url
     },
     latestMessage:{
         type: Schema.Types.ObjectId,
