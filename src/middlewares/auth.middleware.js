@@ -3,7 +3,7 @@ import {ApiError} from "../utils/apiError.js"
 import {asyncHandler} from "../utils/asyncHandler.js";
 
 const authenticate=asyncHandler(async (req,_,next)=>{
-    const token=req.headers.authorization?.split(" ")[1];
+    const token=req.cookies?.accessToken;
     if(!token){
         throw new ApiError(400,"Token Not Found")
     }

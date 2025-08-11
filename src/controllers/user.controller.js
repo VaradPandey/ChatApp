@@ -16,7 +16,7 @@ const registerUser=asyncHandler(async(req,res)=>{
     }
 
     let avatarUrl;
-    if(req.file.path){
+    if(req.file?.path){
         const uploaded=await uploadOnCloudinary(req.file.path);
         avatarUrl=uploaded?.url||"";
     }
@@ -62,14 +62,17 @@ const loginUser=asyncHandler(async (req,res)=>{
 
     const token=await user.setUser();
 
+    res.cookie("accessToken", token, {
+        httpOnly: true,
+        secure: true,
+        maxAge: 24*60*60*1000 // 1 day
+    });
+
     const loggedInUser=await User.findById(user._id).select("-password");
 
     return res
     .status(200)
-    .json(new ApiResponse(200,{
-        user:loggedInUser,
-        token,
-    },"User Logged In Successfully"));
+    .json(new ApiResponse(200,loggedInUser,"User Logged In Successfully"));
 
 });
 
