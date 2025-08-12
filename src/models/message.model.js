@@ -11,6 +11,11 @@ const messageSchema=new mongoose.Schema({
         ref: "User",
         required: true,
     },
+    messageType:{
+        type: String,
+        enum: ['text','image','video','file'],
+        default: 'text',
+    },
     content:{
         type: String,
         required: function(){
@@ -22,10 +27,6 @@ const messageSchema=new mongoose.Schema({
         required: function(){
             return ['image','video','file'].includes(this.messageType)
         }
-    },
-    messageType:{
-        type: String,
-        enum: ['text','image','video','file'],
     },
     status:{
         type: String,
@@ -39,5 +40,11 @@ const messageSchema=new mongoose.Schema({
         }
     ]
 },{timestamps: true});
+
+//add index for faster lookups
+messageSchema.index({
+    chatId: 1,
+    createdAt: -1
+});
 
 export const Message=mongoose.model('Message',messageSchema);

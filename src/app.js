@@ -32,5 +32,8 @@ app.use("/api/user",userRouter);
 import chatRouter from "./routes/chat.route.js";
 app.use("/api/chat",chatRouter);
 
+//MESSAGES ROUTES SETUP
+import messageRouter from "./routes/message.route.js"
+app.use("/api/message",messageRouter);
 
 export {app};
