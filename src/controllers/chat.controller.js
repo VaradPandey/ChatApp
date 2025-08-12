@@ -3,6 +3,7 @@ import {ApiResponse} from "../utils/apiResponse.js";
 import {asyncHandler} from "../utils/asyncHandler.js";
 import { Chat } from "../models/chat.model.js";
 import {uploadOnCloudinary} from "../utils/cloudinary.js"
+import { Message } from "../models/message.model.js";
 
 const createPrivateChat=asyncHandler(async (req,res)=>{
     //get both user ids
@@ -91,7 +92,29 @@ const createGroupChat=asyncHandler(async (req,res)=>{
 
 });
 
+const getChat=asyncHandler(async (req,res)=>{
+    //get chatid from params
+    const {chatId}=req.params;
+
+    //find chat in database
+    const chat=await Chat.findById(chatId).populate("participants","username avatar")
+    .populate("latestMessage")
+    .populate("createdBy","username");
+
+    //if not found then send error
+    if(!chat){
+        throw new ApiError(404,"Chat Not Found");
+    }
+
+    //if found then return chat
+    return res
+    .status(200)
+    .json(new ApiResponse(201,chat,"Chat Found"));
+
+});
+
 export {
     createPrivateChat,
     createGroupChat,
+    getChat,
 }

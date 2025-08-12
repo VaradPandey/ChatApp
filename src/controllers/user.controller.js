@@ -37,8 +37,10 @@ const registerUser=asyncHandler(async(req,res)=>{
 });
 
 const loginUser=asyncHandler(async (req,res)=>{
+    //get username email password
     const {username,email,password}=req.body;
 
+    //check validation
     if(!username && !email){
         throw new ApiError(400,"Give either email or username");
     }
@@ -46,6 +48,7 @@ const loginUser=asyncHandler(async (req,res)=>{
         throw new ApiError(400,"Password is required");
     }
 
+    //find user in database
     const user=await User.findOne({
         $or: [{username},{email}]
     });
@@ -54,12 +57,14 @@ const loginUser=asyncHandler(async (req,res)=>{
         throw new ApiError(404,"No user found with that username or email");
     }
 
+    //check for correct password
     const matchPassword= await user.isPasswordCorrect(password);
 
     if(!matchPassword){
         throw new ApiError(400,"Password Not Matched");
     }
 
+    //create token and cookie
     const token=await user.setUser();
 
     res.cookie("accessToken", token, {
@@ -68,6 +73,7 @@ const loginUser=asyncHandler(async (req,res)=>{
         maxAge: 24*60*60*1000 // 1 day
     });
 
+    //remove password field from user and return it
     const loggedInUser=await User.findById(user._id).select("-password");
 
     return res
@@ -83,8 +89,18 @@ const getUserProfile=asyncHandler(async (req,res)=>{
     .json(new ApiResponse(200,req.user,"User Profile Fetched"));
 });
 
+const logoutUser=asyncHandler(async (req,res)=>{
+     res.clearCookie("accessToken",{
+        httpOnly: true,
+        secure: true,
+     });
+
+     return res.status(200).json({message: "User logged Out"});
+});
+
 export {
     registerUser,
     loginUser,
     getUserProfile,
+    logoutUser,
 }
