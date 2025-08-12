@@ -43,7 +43,7 @@ const createPrivateChat=asyncHandler(async (req,res)=>{
 
 const createGroupChat=asyncHandler(async (req,res)=>{
     //get data from frontend
-    const {chatName,participants}=req.body;
+    let {chatName,participants}=req.body;
 
     //valid pariticipants and group size check
     if(!Array.isArray(participants) || participants.length<=2){

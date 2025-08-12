@@ -28,5 +28,9 @@ app.get('/',(req,res)=>{
 import userRouter from "./routes/user.route.js";
 app.use("/api/user",userRouter);
 
+//CHAT ROUTES SETUP
+import chatRouter from "./routes/chat.route.js";
+app.use("/api/chat",chatRouter);
+
 
 export {app};
