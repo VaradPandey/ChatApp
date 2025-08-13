@@ -5,6 +5,7 @@ import {
     createMessage,
     getMessage,
     editMessage,
+    deleteMessage,
 } from "../controllers/message.controller.js"
 
 const router=Router();
@@ -12,5 +13,6 @@ const router=Router();
 router.route('/createMessage').post(authenticate,upload.single("mediaUrl"),createMessage);
 router.route('/:messageId').get(authenticate,getMessage);
 router.route('/:messageId').post(authenticate,editMessage);
+router.route('/del/:messageId').post(authenticate,deleteMessage);
 
 export default router;

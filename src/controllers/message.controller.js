@@ -123,8 +123,51 @@ const editMessage=asyncHandler(async (req,res)=>{
 
 });
 
+const deleteMessage=asyncHandler(async (req,res)=>{
+    //get id from params
+    const {messageId}=req.params;
+    
+    //check is message exists
+    const message=await Message.findById(messageId);
+
+    if(!message){
+        throw new ApiError(404,"Message Not Found");
+    }
+
+    //get chat of the message
+    const chat=await Chat.findById(message.chatId);
+    if(!chat){
+        throw new ApiError(404,"Chat Not Found");
+    }
+
+    //check if user sent the message or if it is admin of the group
+    if((message.sender.toString()!==req.user._id.toString()) && (chat.createdBy.toString()!==req.user._id.toString())){
+        throw new ApiError(403,"Permission Not Granted");
+    }
+    
+    //if latest message in chat then update chat model
+    if(chat.latestMessage?.toString()===messageId.toString()){
+        const msgs=await Message.find({chatId: message.chatId}).sort({createdAt: -1}).limit(2);
+        if(msgs.length>1){
+            chat.latestMessage=msgs[1]._id;
+        }else{
+            chat.latestMessage=null;   
+        }
+        
+        await chat.save({validateBeforeSave: false});
+    }
+
+    //delete it
+    await Message.deleteOne({_id: messageId});
+
+    return res
+    .status(200)
+    .json(new ApiResponse(200,null,"Message Successfully Deleted"));
+});
+
 export {
     createMessage,
     getMessage,
-    editMessage
+    editMessage,
+    deleteMessage,
 }
