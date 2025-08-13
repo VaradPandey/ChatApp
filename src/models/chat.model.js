@@ -21,6 +21,10 @@ const chatSchema=new mongoose.Schema({
     ],
     grpImage:{
         type: String, //cloudinary url
+        required: function(){
+            return this.isGrp
+        },
+        default: ""
     },
     latestMessage:{
         type: Schema.Types.ObjectId,

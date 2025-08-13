@@ -98,6 +98,18 @@ const logoutUser=asyncHandler(async (req,res)=>{
      return res.status(200).json({message: "User logged Out"});
 });
 
+const changeUserDetails=asyncHandler(async (req,res)=>{
+
+});
+
+const changePassword=asyncHandler(async (req,res)=>{
+
+});
+
+const changeAvatar=asyncHandler(async (req,res)=>{
+
+});
+
 export {
     registerUser,
     loginUser,

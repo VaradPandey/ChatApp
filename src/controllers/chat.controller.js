@@ -113,8 +113,96 @@ const getChat=asyncHandler(async (req,res)=>{
 
 });
 
+const changeGroupImage=asyncHandler(async (req,res)=>{
+    //get chatId from params
+    const {chatId}=req.params;
+
+    //get chat from database;
+    const chat=await Chat.findById(chatId);
+    if(!chat){
+        throw new ApiError(404,"Group Chat Not Found");
+    }
+
+    //check is chat is group chat
+    if(!chat.isGrp){
+        throw new ApiError(400,"Not a Group Chat To Upload Icon");
+    }
+
+    //get image url
+    let grpImageUrl;
+    if(req.file?.path){
+        const upload=await uploadOnCloudinary(req.file.path);
+        if(!upload){
+            throw new ApiError(400,"Unable to upload image");
+        }
+        grpImageUrl=upload.url||"";
+    }
+
+    //edit in db
+    chat.grpImage=grpImageUrl;
+    await chat.save({validateBeforeSave: false});
+
+    //populate chat
+    await chat.populate([
+        {
+            path: "participants",
+            select: "username avatar"
+        },{
+            path: "createdBy",
+            select: "username avatar"
+        }
+    ]);
+
+    return res
+    .status(200)
+    .json(new ApiResponse(200,chat,"Group Icon Updated Successfully"));
+    
+});
+
+const changeGrpName=asyncHandler(async (req,res)=>{
+    //get chatid form params
+    const {chatId}=req.params;
+
+    //find chat in db
+    const chat=await Chat.findById(chatId);
+    if(!chat){
+        throw new ApiError(404,"Chat Not Found");
+    }
+
+    //make sure chat is a group chat
+    if(!chat.isGrp){
+        throw new ApiError(400,"Cant Name A Private Chat")
+    }
+
+    //get new name from body
+    const {newName}=req.body;
+    if(!newName){
+        throw new ApiError(404,"New Name Missing");
+    }
+
+    //update chatname in model
+    chat.chatName=newName.trim();
+    await chat.save({validateBeforeSave: false});
+
+    //populate chat
+    await chat.populate([{
+        path: "participants",
+        select: "username avatar"
+    },{
+        path: "createdBy",
+        select: "username avatar"
+    }]);
+
+    return res
+    .status(200)
+    .json(new ApiResponse(200,chat,"Chat Name Updated Successfully"));
+
+});
+
 export {
     createPrivateChat,
     createGroupChat,
     getChat,
+    changeGroupImage,
+    changeGrpName,
 }
