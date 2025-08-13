@@ -6,6 +6,9 @@ import {
     loginUser,
     getUserProfile,
     logoutUser,
+    changeUserDetails,
+    changePassword,
+    changeAvatar
 } from "../controllers/user.controller.js";
 
 const router=Router();
@@ -15,5 +18,8 @@ router.route('/login').post(loginUser);
 //Secured Routes
 router.route('/profile').get(authenticate,getUserProfile);
 router.route('/logout').post(authenticate,logoutUser);
+router.route('/editProfile').post(authenticate,changeUserDetails);
+router.route('/changePassword').post(authenticate,changePassword);
+router.route('/changeAvatar').post(authenticate,upload.single("avatar"),changeAvatar);
 
 export default router;

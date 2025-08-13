@@ -58,7 +58,7 @@ const loginUser=asyncHandler(async (req,res)=>{
     }
 
     //check for correct password
-    const matchPassword= await user.isPasswordCorrect(password);
+    const matchPassword=await user.isPasswordCorrect(password);
 
     if(!matchPassword){
         throw new ApiError(400,"Password Not Matched");
@@ -99,14 +99,99 @@ const logoutUser=asyncHandler(async (req,res)=>{
 });
 
 const changeUserDetails=asyncHandler(async (req,res)=>{
+    //get details from body
+    const {username,email}=req.body;
+
+    if(!username && !email){
+        throw new ApiError(400,"Please provide a username, email, or both");
+    }
+
+    //find in db
+    const user=await User.findById(req.user._id);
+    if(!user){
+        throw new ApiError(404,"User Not Found");
+    }
+
+    //check uniqueness of username
+    if(username){
+        const existingUserByName=await User.findOne({username});
+        if(existingUserByName){
+            throw new ApiError(400,"Username already taken");
+        }
+        user.username=username;
+    }
+
+    //check uniqueness of email
+    if(email){
+        const existingUserByEmail=await User.findOne({email});
+        if(existingUserByEmail){
+            throw new ApiError(400,"Email already taken");
+        }
+        user.email=email;
+    }
+
+    //confirm changes
+    await user.save({validateBeforeSave: false});
+
+    return res
+    .status(200)
+    .json(new ApiResponse(200,user,"Details Updated Successfully"));
 
 });
 
 const changePassword=asyncHandler(async (req,res)=>{
+    //get new password from body
+    const {password}=req.body;
+    if(!password){
+        throw new ApiError(404,"Please Provide Password To Change");
+    }
+
+    //find user in database
+    const user=await User.findById(req.user._id);
+    if(!user){
+        throw new ApiError(404,"Unable To Fetch User");
+    }
+
+    //match password with original
+    const isSamePassword =await user.isPasswordCorrect(password);
+    if(isSamePassword){
+        throw new ApiError(400,"Existing Password");
+    }
+
+    //update password
+    user.password=password;
+    await user.save({validateBeforeSave: false});
+
+    return res
+    .status(200)
+    .json(new ApiResponse(200,user,"Password Updated Successfully"));
 
 });
 
 const changeAvatar=asyncHandler(async (req,res)=>{
+    //get user from databse
+    const user=await User.findById(req.user._id);
+    if(!user){
+        throw new ApiError(200,"User Not Found");
+    }
+
+    //get avatar url
+    let avatarUrl='';
+    if(req.file?.path){
+        const upload=await uploadOnCloudinary(req.file.path);
+        if(!upload){
+            throw new ApiError(400,"Unable to upload on cloudinary");
+        }
+        avatarUrl=upload.url;
+    }
+
+    //update user
+    user.avatar=avatarUrl;
+    await user.save({validateBeforeSave: false});
+
+    return res
+    .status(200)
+    .json(new ApiResponse(200,user,"Avatar Updated Successfully"));
 
 });
 
@@ -115,4 +200,7 @@ export {
     loginUser,
     getUserProfile,
     logoutUser,
+    changeUserDetails,
+    changePassword,
+    changeAvatar
 }
