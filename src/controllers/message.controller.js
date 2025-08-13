@@ -58,6 +58,73 @@ const createMessage=asyncHandler(async (req,res)=>{
     .json(new ApiResponse(200,message,"Message Created"));
 });
 
+const getMessage=asyncHandler(async (req,res)=>{
+    //get id from frontend
+    const {messageId}=req.params;
+    
+    //search in db
+    const message=await Message.findById(messageId);
+
+    if(!message){
+        throw new ApiError(404,"Message not found");
+    }
+
+    //populte message
+    await message.populate([
+        {
+            path:"sender",select:"username avatar"
+        },
+        {
+            path: "chatId",
+            populate: {
+                path: "participants",
+                select: "username avatar",
+            }
+        }
+    ]);
+
+    //return response
+    return res
+    .status(200)
+    .json(new ApiResponse(201,message,"Message Found In Database"));
+
+});
+
+const editMessage=asyncHandler(async (req,res)=>{
+    //get message id form front end
+    const {messageId}=req.params;
+
+    //find message in db
+    const message=await Message.findById(messageId);
+
+    if(!message){
+        throw new ApiError(404,"Message Not Found");
+    }
+
+    //make sure message is sent by the logged in user
+    if(message.sender.toString()!==req.user._id.toString()){
+        throw new ApiError(403,"Cant Edit Someone Else Message");
+    }
+
+    //get new text
+    const {newText}=req.body;
+
+    if(!newText){
+        throw new ApiError(400,"Provide New Message To Edit");
+    }
+
+    //edit the message
+    message.content=newText;
+    await message.save({validateBeforeSave: false});
+
+    return res
+    .status(200)
+    .json(new ApiResponse(200,message,"Message Updated"));
+
+});
+
 export {
     createMessage,
+    getMessage,
+    editMessage
 }
