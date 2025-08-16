@@ -3,6 +3,8 @@ import { ApiError } from "../utils/apiError.js";
 import { ApiResponse } from "../utils/apiResponse.js";
 import { User } from "../models/user.model.js";
 import { uploadOnCloudinary } from "../../../videoproject/src/utils/cloudinary.js";
+import { Chat } from "../models/chat.model.js";
+import { Message } from "../models/message.model.js";
 
 const registerUser=asyncHandler(async(req,res)=>{
     const {username,email,password}=req.body;
@@ -195,6 +197,50 @@ const changeAvatar=asyncHandler(async (req,res)=>{
 
 });
 
+const deleteUser=asyncHandler(async (req,res)=>{
+    //remove it from group chats
+    await Chat.updateMany(
+        {
+            participants: req.user._id
+        },{
+            $pull: {
+                participants: req.user._id,
+            }
+        }
+    );
+
+    //set group admin to someone else or delete it
+    const chats=await Chat.find({createdBy: req.user._id});
+    for(const chat of chats){
+        if(chat.participants.length>0){
+            const participantArr=chat.participants;
+            chat.createdBy=participantArr[Math.floor(Math.random()*participantArr.length)]
+            await chat.save({validateBeforeSave: false});
+        }else{
+            await chat.deleteOne();
+        }
+    }  
+
+    //set null wherever user texted but keep the content
+    await Message.updateMany(
+        {
+            sender: req.user._id
+        },{
+            $set :{
+                sender: null,
+            }
+        }
+    );
+
+    //delete the user
+    await User.findByIdAndDelete(req.user._id);
+
+    //return
+    return res
+    .status(200)
+    .json(new ApiResponse(200,{},"User Deleted"));
+});
+
 export {
     registerUser,
     loginUser,
@@ -202,5 +248,6 @@ export {
     logoutUser,
     changeUserDetails,
     changePassword,
-    changeAvatar
+    changeAvatar,
+    deleteUser
 }

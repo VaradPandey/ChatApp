@@ -46,9 +46,9 @@ const createGroupChat=asyncHandler(async (req,res)=>{
     //get data from frontend
     let {chatName,participants}=req.body;
 
-    //valid pariticipants and group size check
-    if(!Array.isArray(participants) || participants.length<=2){
-        throw new ApiError(400,"Group Size must be more than 2");
+    //valid pariticipants
+    if(!Array.isArray(participants)||participants.length===0){
+        throw new ApiError(400,"Please provide an array of participant IDs");
     }
 
     //push creator in array and sort ids so order doesn't matter
@@ -199,10 +199,160 @@ const changeGrpName=asyncHandler(async (req,res)=>{
 
 });
 
+const addMembers=asyncHandler(async (req,res)=>{
+    //get data from fontend
+    const {chatId}=req.params;
+    const {participants}=req.body;
+
+    //validation check
+    if(!Array.isArray(participants)||participants.length===0) {
+        throw new ApiError(400, "Please provide an array of participant IDs");
+    }
+
+    //get chat from db
+    const chat=await Chat.findById(chatId);
+    if(!chat){
+        throw new ApiError(404,"Chat Not Found");
+    }
+
+    //check if group or private chat
+    if(!chat.isGrp){
+        throw new ApiError(400,"Cant Add More Members In a Privte Chat");
+    }
+
+    //check if member already exists
+    const existingIds=chat.participants.map(id=>id.toString());
+    const ifExists=chat.participants.some(id=>existingIds.includes(id.toString()));
+    if(ifExists){
+        throw new ApiError(400, "One or more members already exist in the group");
+    }
+
+    //add members in participants array
+    chat.participants.push(...participants);
+    await chat.save({validateBeforeSave: false});
+
+    //populate chat
+    await chat.populate("participants","username avatar")
+
+    return res
+    .status(200)
+    .json(new ApiResponse(200,chat,"New Members Added"));
+
+});
+
+const removeMembers=asyncHandler(async (req,res)=>{
+    //get data from frontend
+    const {chatId}=req.params;
+    const {userIds}=req.body; //array of ids
+
+    //validation check
+    if(!Array.isArray(userIds) || userIds.length===0){
+        throw new ApiError(401,"Please Provide Valid Array Of IDs");
+    }
+
+    //get chat form db
+    const chat=await Chat.findById(chatId);
+    if(!chat){
+        throw new ApiError(404,"Chat Not Found");
+    }
+
+    //prevent removal from private chat
+    if(!chat.isGrp){
+        throw new ApiError(400,"Cant Remove Members From A Private Chat");
+    }
+
+    //find and remove userId in participants array
+    const updatedChat=await Chat.findByIdAndUpdate(chatId,{
+        $pullAll: {
+            participants: userIds,
+        }
+    },{new: true});
+
+    //poplulate chat
+    await updatedChat.populate("participants","username avatar");
+
+    return res
+    .status(200)
+    .json(new ApiResponse(200,updatedChat,"User Removed From Group"));
+
+});
+
+const deleteGrpChat=asyncHandler(async (req,res)=>{
+    //get chatid from forntend
+    const {chatId}=req.params;
+
+    //find chat in db
+    const chat=await Chat.findById(chatId);
+    if(!chat){
+        throw new ApiError(404,"Chat Not Found");
+    }
+
+    //find all messsage ids with those having chat id and delete
+    await Message.deleteMany({chatId: chatId});
+
+    //delete chat from db
+    await Chat.findByIdAndDelete(chatId);
+
+    //return
+    res
+    .status(200)
+    .json(new ApiResponse(200,{},"Group Chat Deleted"));
+
+});
+
+const exitGrpChat=asyncHandler(async (req,res)=>{
+    //get data from front end
+    const {chatId}=req.params;
+
+    //get chat from db
+    const chat=await Chat.findById(chatId);
+    if(!chat){
+        throw new ApiError(404,"Group Chat Not Found");
+    }
+
+    //make sure it is not private chat
+    if(!chat.isGrp){
+        throw new ApiError(400,"Cant Exit Proivate Chat");
+    }
+
+    //find by id and update using pull
+    const updatedChat=await Chat.findByIdAndUpdate(chatId,{
+        $pull: {
+            participants: req.user._id,
+        }
+    },{new:true});
+
+    //delete chat if user was last person
+    if(updatedChat.participants.length===0){
+        await Chat.findByIdAndDelete(chatId);
+        return res.status(200).json(new ApiResponse(200,{},"Chat Deleted"));
+    }
+
+    //if user is admin then give role to someone else
+    if(updatedChat.createdBy.toString()===req.user._id.toString()){
+        const participantArr=updatedChat.participants;
+        chat.createdBy=participantArr[Math.floor(Math.random()*participantArr.length)];
+        await chat.save({validateBeforeSave: false});
+    }
+
+    //populate chat
+    await updatedChat.populate("participants","username avatar");
+
+    //return updatedChat
+    res
+    .status(200)
+    .json(new ApiResponse(200,updatedChat,`${req.user.username} left the group chat`));
+
+});
+
 export {
     createPrivateChat,
     createGroupChat,
     getChat,
     changeGroupImage,
     changeGrpName,
+    addMembers,
+    removeMembers,
+    deleteGrpChat,
+    exitGrpChat,
 }
