@@ -71,7 +71,7 @@ const loginUser=asyncHandler(async (req,res)=>{
 
     res.cookie("accessToken", token, {
         httpOnly: true,
-        secure: true,
+        secure: false,
         maxAge: 24*60*60*1000 // 1 day
     });
 
@@ -94,7 +94,7 @@ const getUserProfile=asyncHandler(async (req,res)=>{
 const logoutUser=asyncHandler(async (req,res)=>{
      res.clearCookie("accessToken",{
         httpOnly: true,
-        secure: true,
+        secure: false,
      });
 
      return res.status(200).json({message: "User logged Out"});
@@ -241,6 +241,16 @@ const deleteUser=asyncHandler(async (req,res)=>{
     .json(new ApiResponse(200,{},"User Deleted"));
 });
 
+const authMe=asyncHandler(async(req,res)=>{
+    const user=await User.findById(req.user._id).select("-password")
+    if(!user){
+        throw new ApiError(404,"User Not Found");
+    }
+    return res
+    .status(200)
+    .json(new ApiResponse(200,user,"User Fetched"));
+});
+
 export {
     registerUser,
     loginUser,
@@ -249,5 +259,6 @@ export {
     changeUserDetails,
     changePassword,
     changeAvatar,
-    deleteUser
+    deleteUser,
+    authMe
 }

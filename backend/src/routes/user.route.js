@@ -9,7 +9,8 @@ import {
     changeUserDetails,
     changePassword,
     changeAvatar,
-    deleteUser
+    deleteUser,
+    authMe
 } from "../controllers/user.controller.js";
 
 const router=Router();
@@ -17,6 +18,7 @@ const router=Router();
 router.route('/register').post(upload.single("avatar"),registerUser);
 router.route('/login').post(loginUser);
 //Secured Routes
+router.route('/auth/me').get(authenticate,authMe);
 router.route('/profile').get(authenticate,getUserProfile);
 router.route('/logout').post(authenticate,logoutUser);
 router.route('/editProfile').post(authenticate,changeUserDetails);

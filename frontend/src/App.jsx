@@ -11,8 +11,9 @@ function App(){
       <Routes>
 
         {/*Public Route*/}
-        <Route path="/register" element={Register}/>
-        <Route path="/login" element={Login}/>
+        <Route path="/" element={<h2>HI</h2>}/>
+        <Route path="/register" element={<Register/>}/>
+        <Route path="/login" element={<Login/>}/>
 
         {/*Protected Route*/}
         <Route path="/dashboard" element={

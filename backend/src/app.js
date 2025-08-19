@@ -36,4 +36,16 @@ app.use("/api/chat",chatRouter);
 import messageRouter from "./routes/message.route.js"
 app.use("/api/message",messageRouter);
 
+
+//Global Error Handler
+app.use((err, req, res, next) => {
+    console.log(err);
+    res.status(err.statusCode || 500).json({
+        success: false,
+        message: err.message || "Internal Server Error",
+        errors: err.errors || [],
+        data: err.data || null
+    });
+});
+
 export {app};
