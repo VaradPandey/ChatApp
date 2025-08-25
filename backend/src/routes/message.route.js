@@ -4,6 +4,7 @@ import { upload } from "../middlewares/multer.middleware.js";
 import { 
     createMessage,
     getMessage,
+    msgHistory,
     editMessage,
     deleteMessage,
 } from "../controllers/message.controller.js"
@@ -12,6 +13,7 @@ const router=Router();
 
 router.route('/createMessage').post(authenticate,upload.single("mediaUrl"),createMessage);
 router.route('/:messageId').get(authenticate,getMessage);
+router.route('/msgHistory/:chatId').get(authenticate,msgHistory);
 router.route('/:messageId').post(authenticate,editMessage);
 router.route('/:messageId/del').post(authenticate,deleteMessage);
 

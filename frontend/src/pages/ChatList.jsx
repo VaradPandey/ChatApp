@@ -1,11 +1,13 @@
 import { useEffect,useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import api from "../api/axios.js";
+import { useNavigate } from "react-router-dom";
 
 export function ChatList(){
     const [chats,setChats]=useState([]);
     const [loading,setLoading]=useState(true);
     const {user}=useAuth();
+    const navigate=useNavigate();
 
     useEffect(()=>{
         const fetchChats=async()=>{
@@ -33,8 +35,10 @@ export function ChatList(){
             {
                 chats.map((chat,index)=>{
                     return(
-                        <div key={index}>
+                        <div key={index} onClick={()=>{navigate(`/chatsection/${chat._id}`)}}>
                             {chat.chatName}
+                            <br/>
+                            {chat.latestMessage.content}
                         </div>
                     )
                 })

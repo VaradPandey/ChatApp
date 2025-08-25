@@ -5,6 +5,7 @@ import { Dashboard } from "./pages/Dashboard";
 import { Home } from "./pages/Home";
 import { ProtectedRoute } from "./components/ProtectedRoute"
 import { ChatList } from "./pages/ChatList";
+import { ChatSection } from "./pages/ChatSection";
 
 function App(){
   
@@ -27,6 +28,12 @@ function App(){
         <Route path="/inbox" element={
           <ProtectedRoute>
             <ChatList/>
+          </ProtectedRoute>
+        }/>
+
+        <Route path="/chatsection/:chatId" element={
+          <ProtectedRoute>
+            <ChatSection/>
           </ProtectedRoute>
         }/>
       

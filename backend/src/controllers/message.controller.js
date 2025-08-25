@@ -4,6 +4,7 @@ import { ApiResponse } from "../utils/apiResponse.js";
 import { Message } from "../models/message.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { Chat } from "../models/chat.model.js";
+import { syncIndexes } from "mongoose";
 
 const createMessage=asyncHandler(async (req,res)=>{
     //get data from  frontend
@@ -90,6 +91,24 @@ const getMessage=asyncHandler(async (req,res)=>{
 
 });
 
+const msgHistory=asyncHandler(async(req,res)=>{
+    const {chatId}=req.params;
+    const chat=await Chat.findById(chatId);
+    if(!chat){
+        throw new ApiError(404,'Chat Not Found');
+    }
+
+    const msgHistory=await Message.find({chatId}).populate([
+        {path: 'sender',select: "username avatar"},
+        {path: 'readBy',select: 'username avatar'}
+    ]).sort({createdAt: 1});
+
+    return res
+    .status(200)
+    .json(new ApiResponse(200,msgHistory,"Message History Fetched"));
+
+});
+
 const editMessage=asyncHandler(async (req,res)=>{
     //get message id form front end
     const {messageId}=req.params;
@@ -168,6 +187,7 @@ const deleteMessage=asyncHandler(async (req,res)=>{
 export {
     createMessage,
     getMessage,
+    msgHistory,
     editMessage,
     deleteMessage,
 }
