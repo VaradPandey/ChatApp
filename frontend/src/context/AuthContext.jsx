@@ -23,11 +23,11 @@ export function AuthProvider({children}){
         api.get('/user/auth/me')
         .then((res)=>{
             setUser(res.data.data)
-            console.log("Fetched User:", res.data.data)
+            console.log("AuthMe Fetched User:", res.data.data)
         })
         .catch(()=>{
             setUser(null)
-            console.log("No User Found")
+            console.log("No User Found || No AuthMe")
         })
         .finally(()=>setLoading(false))
     },[])

@@ -92,6 +92,28 @@ const createGroupChat=asyncHandler(async (req,res)=>{
 
 });
 
+const getChatList=asyncHandler(async (req,res)=>{
+    
+    const chatList=await Chat.find({participants: req.user._id}).sort({createdAt: -1}).populate([
+        {
+            path: "latestMessage",   
+            select: "messageType content mediaUrl",
+            populate:{
+                path: "sender",
+                select: "username",
+            }
+        }
+    ]);
+    
+    if(!chatList){
+        throw new ApiError(400,"Unable To Fetch Chats");
+    }
+    
+    return res
+    .status(200)
+    .json(new ApiResponse(200,chatList,"chat list fetched"));
+});
+
 const getChat=asyncHandler(async (req,res)=>{
     //get chatid from params
     const {chatId}=req.params;
@@ -348,6 +370,7 @@ const exitGrpChat=asyncHandler(async (req,res)=>{
 export {
     createPrivateChat,
     createGroupChat,
+    getChatList,
     getChat,
     changeGroupImage,
     changeGrpName,

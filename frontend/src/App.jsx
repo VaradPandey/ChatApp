@@ -1,8 +1,10 @@
 import {BrowserRouter,Routes,Route} from "react-router-dom";
-import { Register } from "./pages/register";
-import { Login } from "./pages/login";
+import { Register } from "./pages/Register";
+import { Login } from "./pages/Login";
 import { Dashboard } from "./pages/Dashboard";
+import { Home } from "./pages/Home";
 import { ProtectedRoute } from "./components/ProtectedRoute"
+import { ChatList } from "./pages/ChatList";
 
 function App(){
   
@@ -11,7 +13,7 @@ function App(){
       <Routes>
 
         {/*Public Route*/}
-        <Route path="/" element={<h2>HI</h2>}/>
+        <Route path="/" element={<Home/>}/>
         <Route path="/register" element={<Register/>}/>
         <Route path="/login" element={<Login/>}/>
 
@@ -19,6 +21,12 @@ function App(){
         <Route path="/dashboard" element={
           <ProtectedRoute>
             <Dashboard/>
+          </ProtectedRoute>
+        }/>
+
+        <Route path="/inbox" element={
+          <ProtectedRoute>
+            <ChatList/>
           </ProtectedRoute>
         }/>
       

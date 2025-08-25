@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom"
 import { useAuth } from "../context/AuthContext"
+import { ChatList } from "./ChatList"
 
 //Protected Page
 export function Dashboard(){
@@ -14,7 +15,10 @@ export function Dashboard(){
                 onClick={()=>{
                     logout()
                     navigate('/login')
-                }}>Logout</button>
+                }}>Logout
+            </button>
+            
+            <button onClick={()=>{navigate('/inbox')}}>Open Chats</button>
         </div>
     )
 }
