@@ -2,13 +2,17 @@ import {ApiError} from "../utils/apiError.js"
 import {ApiResponse} from "../utils/apiResponse.js";
 import {asyncHandler} from "../utils/asyncHandler.js";
 import { Chat } from "../models/chat.model.js";
+import { User } from "../models/user.model.js";
 import {uploadOnCloudinary} from "../utils/cloudinary.js"
 import { Message } from "../models/message.model.js";
 
 const createPrivateChat=asyncHandler(async (req,res)=>{
     //get both user ids
-    const {otherUserId}=req.body;
+    const {username}=req.body;
     const userId=req.user._id;
+
+    const otherUser=await User.findOne({username});
+    const otherUserId=otherUser._id;
     
     //search for existing chats
     const existingChat=await Chat.findOne({
@@ -44,15 +48,24 @@ const createPrivateChat=asyncHandler(async (req,res)=>{
 
 const createGroupChat=asyncHandler(async (req,res)=>{
     //get data from frontend
-    let {chatName,participants}=req.body;
+    let {chatName,usernames}=req.body;
 
     //valid pariticipants
-    if(!Array.isArray(participants)||participants.length===0){
-        throw new ApiError(400,"Please provide an array of participant IDs");
+    if(!Array.isArray(usernames)||usernames.length===0){
+        throw new ApiError(400,"Please provide an array of participant usernames");
     }
 
-    //push creator in array and sort ids so order doesn't matter
+    //fetch ids from usernames
+    const users=await User.find({ username: { $in: usernames } }, "_id username");
+    if(users.length!==usernames.length) {
+        throw new ApiError(400, "Some usernames are invalid");
+    }
+
+    //convert to ids and include creator
+    let participants=users.map(user=>user._id.toString());
     participants.push(req.user._id);
+
+    //remove duplicates and sort
     participants=[...new Set(participants.map(id=>id.toString()))].sort();
 
     //find if group chat already exists
@@ -102,6 +115,10 @@ const getChatList=asyncHandler(async (req,res)=>{
                 path: "sender",
                 select: "username",
             }
+        },
+        {
+            path: "participants",
+            select: "username avatar"
         }
     ]);
     

@@ -6,6 +6,8 @@ import { Home } from "./pages/Home";
 import { ProtectedRoute } from "./components/ProtectedRoute"
 import { ChatList } from "./pages/ChatList";
 import { ChatSection } from "./pages/ChatSection";
+import { CreateGroupChat } from "./pages/CreateGroupChat";
+import { CreatePrivateChat } from "./pages/CreatePrivateChat";
 
 function App(){
   
@@ -34,6 +36,18 @@ function App(){
         <Route path="/chatsection/:chatId" element={
           <ProtectedRoute>
             <ChatSection/>
+          </ProtectedRoute>
+        }/>
+
+        <Route path="/createGroupChat" element={
+          <ProtectedRoute>
+            <CreateGroupChat/>
+          </ProtectedRoute>
+        }/>
+
+        <Route path="/createPrivateChat" element={
+          <ProtectedRoute>
+            <CreatePrivateChat/>
           </ProtectedRoute>
         }/>
       
