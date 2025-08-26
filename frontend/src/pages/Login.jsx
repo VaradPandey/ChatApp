@@ -1,11 +1,10 @@
-import { useState } from "react"
-import { useNavigate } from "react-router-dom"
-import api from "../api/axios.js"
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import api from "../api/axios.js";
 import { useAuth } from "../context/AuthContext";
 
-export function Login(){
+export function Login() {
     const {setUser}=useAuth();
-
     const navigate=useNavigate();
 
     const [form,setForm]=useState({
@@ -14,18 +13,19 @@ export function Login(){
     });
 
     const handleChange=(event)=>{
-        setForm(prev=>({...prev,[event.target.name]:event.target.value}));
-    }
+        setForm(prev=>({ ...prev,[event.target.name]: event.target.value }));
+    };
 
     const handleSubmit=async(event)=>{
         event.preventDefault();
         try{
             const res=await api.post('/user/login',form);
             setUser(res.data.data);
-            console.log(res.data)
+            console.log(res.data);
             console.log("Login Successful",res.data.data);
             navigate('/dashboard');
-        }catch(error){
+        }
+        catch(error){
             if(error.response){
                 console.log("Login Error: ",error.response.data);
             }else if(error.request){
@@ -34,17 +34,34 @@ export function Login(){
                 console.log("Error",error.message);
             }
         }
-    }
+    };
 
-    return (
-        <form onSubmit={handleSubmit}>
-            <input type="text" name="username" value={form.username} placeholder="Username"
-            onChange={handleChange} required/>
+    return(
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-indigo-950 to-purple-950">
+            <form 
+                onSubmit={handleSubmit} 
+                className="bg-gray-800 bg-opacity-80 p-8 rounded-2xl shadow-2xl w-full max-w-md text-white"
+            >
+                <h1 className="text-3xl font-bold text-center mb-6">Login</h1>
+                
+                <input type="text" name="username" value={form.username} placeholder="Username"
+                    onChange={handleChange} required
+                    className="w-full mb-4 px-4 py-3 rounded-lg bg-gray-700 placeholder-gray-400 text-white focus:outline-none focus:ring-2 focus:ring-indigo-600"
+                />
 
-            <input type="text" name="password" value={form.password} placeholder="Password"
-            onChange={handleChange} required/>
+                <input
+                    type="password" name="password" value={form.password} placeholder="Password"
+                    onChange={handleChange} required
+                    className="w-full mb-6 px-4 py-3 rounded-lg bg-gray-700 placeholder-gray-400 text-white focus:outline-none focus:ring-2 focus:ring-purple-600"
+                />
 
-            <button type="Submit">Submit</button>
-        </form>
-    )
+                <button
+                    type="submit"
+                    className="w-full py-3 bg-indigo-700 hover:bg-indigo-800 rounded-lg shadow-md font-semibold text-white transition-all duration-300"
+                >
+                    Submit
+                </button>
+            </form>
+        </div>
+    );
 }

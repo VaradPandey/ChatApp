@@ -1,12 +1,12 @@
-export function OtherUserMessage({message,index}){
-    return(
-        <div key={index} className="border border-gray-300 rounded-md p-2 mb-2 bg-gray-100">
-            <span className="font-bold text-red-700 mr-2">
-                {message.sender.username}:
-            </span>
-            <span className="text-gray-800">
-                {message.content}
-            </span>
+export function OtherUserMessage({ message,index }) {
+    return (
+        <div key={index} className="flex justify-start">
+            <div className="w-80 bg-gray-700 text-white p-3 rounded-xl rounded-bl-none shadow-md break-words">
+                <span className="block text-sm font-semibold text-purple-400 mb-1">
+                    {message.sender.username}
+                </span>
+                <span>{message.content}</span>
+            </div>
         </div>
-    )
+    );
 }
