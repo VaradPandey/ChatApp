@@ -1,9 +1,11 @@
 import { useState } from "react";
 import api from "../api/axios.js";
+import { useNavigate } from "react-router-dom";
 
 export function CreateGroupChat() {
     const [userArr,setUserArr]=useState([]);
     const [usernameInput,setUsernameInput]=useState("");
+    const navigate=useNavigate();
 
     const [body,setBody]=useState({
         chatName: "",
@@ -94,7 +96,10 @@ export function CreateGroupChat() {
                 <button
                     type="button"
                     className="w-full py-2 mt-4 bg-purple-700 hover:bg-purple-800 text-white font-semibold rounded-lg transition-all duration-300"
-                    onClick={handleSubmit}
+                    onClick={(event)=>{
+                        handleSubmit(event);
+                        navigate('/inbox');
+                    }}
                 >
                     Create Group
                 </button>
