@@ -58,7 +58,7 @@ const createGroupChat=asyncHandler(async (req,res)=>{
     //fetch ids from usernames
     const users=await User.find({ username: { $in: usernames } }, "_id username");
     if(users.length!==usernames.length) {
-        throw new ApiError(400, "Some usernames are invalid");
+        throw new ApiError(400,"Some usernames are invalid");
     }
 
     //convert to ids and include creator
@@ -241,11 +241,17 @@ const changeGrpName=asyncHandler(async (req,res)=>{
 const addMembers=asyncHandler(async (req,res)=>{
     //get data from fontend
     const {chatId}=req.params;
-    const {participantsArr}=req.body;
+    const {usernames}=req.body;
 
     //validation check
-    if(!Array.isArray(participantsArr)||participantsArr.length===0) {
-        throw new ApiError(400, "Please provide an array of participant IDs");
+    if(!Array.isArray(usernames)||usernames.length===0){
+        throw new ApiError(400,"Please provide an array of participant usernames");
+    }
+
+    //fetch ids from usernames
+    const users=await User.find({ username: { $in: usernames } }, "_id username");
+    if(users.length!==usernames.length) {
+        throw new ApiError(400, "Some usernames are invalid");
     }
 
     //get chat from db
@@ -259,15 +265,19 @@ const addMembers=asyncHandler(async (req,res)=>{
         throw new ApiError(400,"Cant Add More Members In a Privte Chat");
     }
 
-    //check if member already exists
-    const existingIds=chat.participants.map(id=>id.toString());
-    const ifExists=participantsArr.some(id=>existingIds.includes(id.toString()));
-    if(ifExists){
-        throw new ApiError(400, "One or more members already exist in the group");
+    //extract ids of users to add
+    const newMemberIds=users.map((u)=>u._id.toString());
+
+    //filter out existing participants
+    const existingIds=chat.participants.map((id)=>id.toString());
+    const uniqueNewMembers=newMemberIds.filter((id)=>!existingIds.includes(id));
+
+    if(uniqueNewMembers.length===0){
+      throw new ApiError(400, "All provided members already exist in the group");
     }
 
-    //add members in participants array
-    chat.participants.push(...participantsArr);
+    // push only new unique members
+    chat.participants.push(...uniqueNewMembers);
     await chat.save({validateBeforeSave: false});
 
     //populate chat
@@ -282,10 +292,10 @@ const addMembers=asyncHandler(async (req,res)=>{
 const removeMembers=asyncHandler(async (req,res)=>{
     //get data from frontend
     const {chatId}=req.params;
-    const {userIds}=req.body; //array of ids
+    const {usernames}=req.body;
 
     //validation check
-    if(!Array.isArray(userIds) || userIds.length===0){
+    if(!Array.isArray(usernames) || usernames.length===0){
         throw new ApiError(401,"Please Provide Valid Array Of IDs");
     }
 
@@ -298,6 +308,14 @@ const removeMembers=asyncHandler(async (req,res)=>{
     //prevent removal from private chat
     if(!chat.isGrp){
         throw new ApiError(400,"Cant Remove Members From A Private Chat");
+    }
+
+    // find userIds for given usernames
+    const users=await User.find({username:{$in:usernames}},"_id");
+    const userIds=users.map(user=>user._id);
+
+    if(userIds.length===0){
+        throw new ApiError(404,"No matching users found for given usernames");
     }
 
     //find and remove userId in participants array

@@ -21,7 +21,7 @@ router.route('/createGroupChat').post(authenticate,upload.single("grpImage"),cre
 router.route('/inbox').get(authenticate,getChatList);
 router.route('/:chatId').get(authenticate,getChat);
 router.route('/:chatId/editGrpIcon').post(authenticate,upload.single("grpImage"),changeGroupImage);
-router.route('/:chatId/editGrpName').post(authenticate,changeGrpName);
+router.route('/:chatId/editGrpName').put(authenticate,changeGrpName);
 router.route('/:chatId/addMembers').post(authenticate,addMembers);
 router.route('/:chatId/removeMembers').post(authenticate,removeMembers);
 router.route('/:chatId/deleteGrpChat').post(authenticate,deleteGrpChat);

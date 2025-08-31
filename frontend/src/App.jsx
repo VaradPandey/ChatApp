@@ -8,6 +8,7 @@ import { ChatList } from "./pages/ChatList";
 import { ChatSection } from "./pages/ChatSection";
 import { CreateGroupChat } from "./pages/CreateGroupChat";
 import { CreatePrivateChat } from "./pages/CreatePrivateChat";
+import { EditGroupChat } from "./pages/EditGroupChat";
 
 function App(){
   
@@ -50,6 +51,12 @@ function App(){
             <CreatePrivateChat/>
           </ProtectedRoute>
         }/>
+
+        <Route path="/editgrpsettings/:chatId" element={
+          <ProtectedRoute>
+              <EditGroupChat/>
+          </ProtectedRoute>
+        }></Route>
       
       </Routes>
     </BrowserRouter>
