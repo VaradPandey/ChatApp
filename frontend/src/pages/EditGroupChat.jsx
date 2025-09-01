@@ -101,8 +101,9 @@ export function EditGroupChat() {
     if(loading) return <LoadingSpinner></LoadingSpinner>
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-900 via-indigo-950 to-purple-950 flex justify-center items-start p-6">
-            <div className="w-full max-w-xl bg-gray-800 p-6 rounded-2xl shadow-lg space-y-6">
+        <div className="relative min-h-screen bg-gradient-to-br from-gray-900 via-indigo-950 to-purple-950 flex justify-center items-start p-6">
+
+            <div className="w-full max-w-xl bg-gray-800 p-6 rounded-2xl shadow-lg space-y-6 z-10">
                 <h1 className="text-2xl font-bold text-white text-center">
                     Edit Group Settings
                 </h1>
@@ -221,6 +222,11 @@ export function EditGroupChat() {
                 >
                     Back to Chat
                 </button>
+            </div>
+
+            {/* Decorative background image */}
+            <div className="absolute inset-0 z-0">
+                <img src="/images/stars.jpg" className="w-full h-full object-cover opacity-10 fixed pointer-events-none" />
             </div>
         </div>
     );

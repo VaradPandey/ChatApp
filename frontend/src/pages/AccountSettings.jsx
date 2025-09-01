@@ -74,7 +74,7 @@ export function AccountSettings() {
             setLoading(true);
             await api.post(`/user/deleteUser`);
             logout();
-            navigate("/home");
+            navigate("/");
         }catch(error){
             console.error("DELETE USER ERROR:",err);
             alert("Failed to delete account");
@@ -86,7 +86,7 @@ export function AccountSettings() {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-900 via-indigo-950 to-purple-950 flex justify-center items-start p-6">
-            <div className="w-full max-w-xl bg-gray-800 p-6 rounded-2xl shadow-lg space-y-6">
+            <div className="w-full max-w-xl bg-gray-800 p-6 rounded-2xl shadow-lg space-y-6 z-10">
                 <h1 className="text-2xl font-bold text-white text-center">
                     Account Settings
                 </h1>
@@ -187,6 +187,11 @@ export function AccountSettings() {
                 >
                     Back to Dashboard
                 </button>
+            </div>
+
+            {/* Decorative background image */}
+            <div className="absolute inset-0 z-0">
+                <img src="images/stars.jpg" className="w-full h-full object-cover opacity-10" />
             </div>
         </div>
     );

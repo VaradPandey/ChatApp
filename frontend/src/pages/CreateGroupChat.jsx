@@ -39,7 +39,7 @@ export function CreateGroupChat() {
 
     return (
         <div className="w-full min-h-screen bg-gradient-to-br from-gray-900 via-indigo-950 to-purple-950 text-white flex items-center justify-center">
-            <div className="bg-gray-800 p-6 rounded-2xl shadow-xl w-full max-w-md">
+            <div className="bg-gray-800 p-6 rounded-2xl shadow-xl w-full max-w-md z-10">
                 <h1 className="text-2xl font-bold mb-4 text-center text-white">
                     Create Group Chat
                 </h1>
@@ -103,6 +103,11 @@ export function CreateGroupChat() {
                 >
                     Create Group
                 </button>
+            </div>
+
+            {/* Decorative background image */}
+            <div className="absolute inset-0 z-0">
+                <img src="images/stars.jpg" className="w-full h-full object-cover opacity-10" />
             </div>
         </div>
     );

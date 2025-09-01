@@ -40,7 +40,7 @@ export function Login() {
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-indigo-950 to-purple-950">
             <form 
                 onSubmit={handleSubmit} 
-                className="bg-gray-800 bg-opacity-80 p-8 rounded-2xl shadow-2xl w-full max-w-md text-white"
+                className="bg-gray-800 bg-opacity-80 p-8 rounded-2xl shadow-2xl w-full max-w-md text-white z-10"
             >
                 <h1 className="text-3xl font-bold text-center mb-6">Login</h1>
                 
@@ -62,6 +62,12 @@ export function Login() {
                     Submit
                 </button>
             </form>
+
+            {/* Decorative background image */}
+            <div className="absolute inset-0 z-0">
+                <img src="images/stars.jpg" className="w-full h-full object-cover opacity-10" />
+            </div>
+
         </div>
     );
 }

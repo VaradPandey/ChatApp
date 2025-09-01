@@ -43,7 +43,6 @@ export function ChatSection() {
                 const res=await api.get(`/chat/${chatId}`)
                 setChatInfo(res.data.data)
                 console.log(res.data.data)
-
             }catch(error){
                 console.log('CATCH BLOCK FETCH CHAT INFO ERROR: ',error);
             }
@@ -85,12 +84,11 @@ export function ChatSection() {
     }
 
     const editMessage=async(msgId)=>{
-        if(!window.confirm("Are you sure you want to delete this message?")) return;
-
         if(!editText.trim()) return;
+
         try{
             const res=await api.post(`/message/${msgId}`,{ newText: editText });
-            setMessages(prev=>prev.map(m=>m._id===msgId ?{...m,content: res.data.data.content }:m));
+            setMessages(prev=>prev.map(m=>m._id===msgId ? {...m,content: res.data.data.content} : m));
             setEditingMsgId(null);
             setEditText("");
         }catch(error){
@@ -99,6 +97,8 @@ export function ChatSection() {
     };
 
     const deleteMessage=async(msgId)=>{
+        if(!window.confirm("Are you sure you want to delete this message?")) return;
+
         try{
             await api.post(`/message/${msgId}/del`);
             setMessages(prev=>prev.filter(m=>m._id !== msgId));
@@ -110,108 +110,109 @@ export function ChatSection() {
     if (loading) return <LoadingSpinner></LoadingSpinner>
 
     return(
-        <div className="min-h-screen bg-gradient-to-br from-gray-900 via-indigo-950 to-purple-950 flex flex-col h-screen">
+        <div className="relative min-h-screen bg-gradient-to-br from-gray-900 via-indigo-950 to-purple-950 flex flex-col h-screen">
 
             {/* Top Bar */}
-            <div className="flex items-center justify-between p-4 bg-gray-800 border-b border-gray-700">
-            {/* Left Side */}
-            <div className="flex items-center gap-3">
-                {chatInfo&&(
-                <>
-                    <img src={chatInfo.isGrp?
-                        chatInfo.grpImage:
-                        chatInfo.participants?.find(p=>p.username!==user.username)?.avatar} 
-                    alt="chat avatar" 
-                    className="w-10 h-10 rounded-full"
-                    />
-                    <h1 className="text-lg font-semibold text-white">
-                    {chatInfo.isGrp?
-                    chatInfo.chatName:
-                    chatInfo.participants?.find(p=>p.username!==user.username)?.username}
-                    </h1>
-                </>
-                )}
-            </div>
-
-            {/* Right Side */}
-            {chatInfo.isGrp && (
-                <div className="flex items-center gap-2">
-                <button 
-                    onClick={()=>navigate(`/editgrpsettings/${chatInfo._id}`)} 
-                    className="px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-sm font-medium"
-                >
-                    Settings
-                </button>
-                <button
-                    onClick={()=>leaveGroupChat(chatInfo._id)}
-                    className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium"
-                >
-                    Exit
-                </button>
+            <div className="flex items-center justify-between p-4 bg-gray-800 border-b border-gray-700 z-10 relative">
+                {/* Left Side */}
+                <div className="flex items-center gap-3 z-10">
+                    {chatInfo&&(
+                    <>
+                        <img src={chatInfo.isGrp?
+                            chatInfo.grpImage:
+                            chatInfo.participants?.find(p=>p.username!==user.username)?.avatar} 
+                        alt="chat avatar" 
+                        className="w-10 h-10 rounded-full"
+                        />
+                        <h1 className="text-lg font-semibold text-white">
+                        {chatInfo.isGrp?
+                        chatInfo.chatName:
+                        chatInfo.participants?.find(p=>p.username!==user.username)?.username || "Deleted User"}
+                        </h1>
+                    </>
+                    )}
                 </div>
-            )}
+
+                {/* Right Side */}
+                {chatInfo.isGrp && (
+                    <div className="flex items-center gap-2">
+                        <button 
+                            onClick={()=>navigate(`/editgrpsettings/${chatInfo._id}`)} 
+                            className="px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-sm font-medium"
+                        >
+                            Settings
+                        </button>
+                        <button
+                            onClick={()=>leaveGroupChat(chatInfo._id)}
+                            className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium"
+                        >
+                            Exit
+                        </button>
+                    </div>
+                )}
             </div>
 
             {/* Messages Container */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                {messages.map((message, index)=>
-                    message.sender.username===user.username?(
-                    <div key={index} className="space-y-1 flex flex-col items-end">
-                        {editingMsgId===message._id?(
-                        <div className="flex items-center gap-2 p-2 rounded-lg shadow-md">
-                            <input
-                            type="text"
-                            value={editText}
-                            onChange={(e)=>setEditText(e.target.value)}
-                            className="flex-1 px-3 py-1 rounded-lg text-white focus:ring-2 focus:ring-purple-600"
-                            />
-                            <button
-                            onClick={()=>editMessage(message._id)}
-                            className="px-3 py-1 bg-purple-600 text-white rounded-lg text-sm"
-                            >
-                            Save
-                            </button>
-                            <button
-                            onClick={()=>{
-                                setEditingMsgId(null);
-                                setEditText("");
-                            }}
-                            className="px-3 py-1 text-white rounded-lg text-sm"
-                            >
-                            Cancel
-                            </button>
-                        </div>
-                        ):(
-                        <>
-                            <div className="flex gap-2 mb-1 px-3 py-1 rounded-lg shadow-md w-fit">
-                            <button
-                                onClick={()=>{
-                                setEditingMsgId(message._id);
-                                setEditText(message.content);
-                                }}
-                                className="text-xs text-purple-400 hover:underline"
-                            >
-                                Edit
-                            </button>
-                            <button
-                                onClick={()=>deleteMessage(message._id)}
-                                className="text-xs text-red-400 hover:underline"
-                            >
-                                Delete
-                            </button>
+            <div className="flex-1 overflow-y-auto p-4 space-y-4 z-10 relative">
+                {messages.map((message,index)=>{
+                    const senderUsername=message.sender?.username;
+                    const isUser=senderUsername===user.username;
+
+                    return isUser ? (
+                        <div key={index} className="space-y-1 flex flex-col items-end">
+                            {editingMsgId===message._id?(
+                            <div className="flex items-center gap-2 p-2 rounded-lg shadow-md">
+                                <input
+                                type="text"
+                                value={editText}
+                                onChange={(e)=>setEditText(e.target.value)}
+                                className="flex-1 px-3 py-1 rounded-lg text-white focus:ring-2 focus:ring-purple-600"
+                                />
+                                <button
+                                onClick={()=>editMessage(message._id)}
+                                className="px-3 py-1 bg-purple-600 text-white rounded-lg text-sm"
+                                >
+                                Save
+                                </button>
+                                <button
+                                onClick={()=>{ setEditingMsgId(null); setEditText(""); }}
+                                className="px-3 py-1 text-white rounded-lg text-sm"
+                                >
+                                Cancel
+                                </button>
                             </div>
-                            <UserMessage message={message} index={index} />
-                        </>
-                        )}
-                    </div>
+                            ):(
+                            <>
+                                <div className="flex gap-2 mb-1 px-3 py-1 rounded-lg shadow-md w-fit">
+                                    {senderUsername&&(
+                                        <>
+                                        <button
+                                            onClick={()=>{ setEditingMsgId(message._id); setEditText(message.content); }}
+                                            className="text-xs text-purple-400 hover:underline"
+                                        >
+                                            Edit
+                                        </button>
+                                        <button
+                                            onClick={()=>deleteMessage(message._id)}
+                                            className="text-xs text-red-400 hover:underline"
+                                        >
+                                            Delete
+                                        </button>
+                                        </>
+                                    )}
+                                </div>
+                                <UserMessage message={message} index={index} />
+                            </>
+                            )}
+                        </div>
                     ):(
-                    <OtherUserMessage key={index} message={message} index={index} />
+                        <OtherUserMessage key={index} message={message} index={index} />
                     )
-                )}
+                })}
             </div>
 
             {/* Input Section */}
-            <div className="bg-gray-800 p-4 flex items-center space-x-3 border-t border-gray-700">
+            <div className="bg-gray-800 p-4 flex items-center space-x-3 border-t border-gray-700 z-10 relative">
                 <input
                     type="text" placeholder="Type Message Here..." name="content" value={newContent.content}
                     onChange={handleChange}
@@ -224,6 +225,11 @@ export function ChatSection() {
                 >
                     Send
                 </button>
+            </div>
+
+            {/* Decorative background image */}
+            <div className="absolute inset-0 z-0">
+                <img src="/images/stars.jpg" className="w-full h-full object-cover opacity-10" />
             </div>
         </div>
     );

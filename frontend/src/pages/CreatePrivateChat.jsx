@@ -29,39 +29,44 @@ export function CreatePrivateChat(){
 
     return (
     <div className="w-full min-h-screen bg-gradient-to-br from-gray-900 via-indigo-950 to-purple-950 text-white flex items-center justify-center">
-        <div className="bg-gray-800 p-6 rounded-2xl shadow-xl w-full max-w-md">
-        <h1 className="text-2xl font-bold mb-4 text-center text-white">
-            Create Private Chat
-        </h1>
+        <div className="bg-gray-800 p-6 rounded-2xl shadow-xl w-full max-w-md z-10">
+            <h1 className="text-2xl font-bold mb-4 text-center text-white">
+                Create Private Chat
+            </h1>
 
-        {/* Username Input */}
-        <div className="mb-4">
-            <label className="block text-sm font-semibold text-gray-300 mb-1">
-            Username
-            </label>
-            <div className="flex">
-            <input
-                type="text"
-                name="username"
-                value={body.username}
-                onChange={handleChange}
-                placeholder="Enter username..."
-                className="flex-1 px-3 py-2 bg-gray-700 border border-gray-600 rounded-l-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
-            />
-            <button
-                type="button"
-                onClick={handleSubmit}
-                className="px-4 py-2 bg-purple-700 hover:bg-purple-800 text-white font-semibold rounded-r-lg transition-all duration-300"
-            >
-                Add
-            </button>
+            {/* Username Input */}
+            <div className="mb-4">
+                <label className="block text-sm font-semibold text-gray-300 mb-1">
+                Username
+                </label>
+                <div className="flex">
+                <input
+                    type="text"
+                    name="username"
+                    value={body.username}
+                    onChange={handleChange}
+                    placeholder="Enter username..."
+                    className="flex-1 px-3 py-2 bg-gray-700 border border-gray-600 rounded-l-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                />
+                <button
+                    type="button"
+                    onClick={handleSubmit}
+                    className="px-4 py-2 bg-purple-700 hover:bg-purple-800 text-white font-semibold rounded-r-lg transition-all duration-300"
+                >
+                    Add
+                </button>
+                </div>
             </div>
+
+            {/* Info Box */}
+            <p className="text-gray-400 text-sm text-center">
+                Enter a username and click <span className="text-purple-400 font-semibold">Add</span> to start a private chat.
+            </p>
         </div>
 
-        {/* Info Box */}
-        <p className="text-gray-400 text-sm text-center">
-            Enter a username and click <span className="text-purple-400 font-semibold">Add</span> to start a private chat.
-        </p>
+        {/* Decorative background image */}
+        <div className="absolute inset-0 z-0">
+            <img src="images/stars.jpg" className="w-full h-full object-cover opacity-10" />
         </div>
     </div>
     );
