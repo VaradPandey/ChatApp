@@ -118,17 +118,34 @@ export function ChatSection() {
                 <div className="flex items-center gap-3 z-10">
                     {chatInfo&&(
                     <>
-                        <img src={chatInfo.isGrp?
+                        <img src={
+                            chatInfo.isGrp?
                             chatInfo.grpImage:
-                            chatInfo.participants?.find(p=>p.username!==user.username)?.avatar} 
+                            chatInfo.participants?.find(p=>p.username!==user.username)?.avatar
+                            ||"/images/default.png"
+                        } 
                         alt="chat avatar" 
                         className="w-10 h-10 rounded-full"
                         />
-                        <h1 className="text-lg font-semibold text-white">
-                        {chatInfo.isGrp?
-                        chatInfo.chatName:
-                        chatInfo.participants?.find(p=>p.username!==user.username)?.username || "Deleted User"}
-                        </h1>
+                        <div className="flex flex-col">
+                            <span className="text-lg font-semibold text-white">
+                                {
+                                    chatInfo.isGrp?
+                                    chatInfo.chatName:
+                                    chatInfo.participants?.find(p => p.username !== user.username)?.username
+                                    ||"Deleted User"
+                                }
+                            </span>
+                            <span className="text-sm text-gray-400">
+                                {
+                                    chatInfo.isGrp?
+                                    `${chatInfo.participants.filter(p => p.isOnline).length} online`:
+                                    chatInfo.participants?.find(p => p.username !== user.username)?.isOnline?
+                                    "Online":
+                                    "Offline"
+                                }
+                            </span>
+                        </div>
                     </>
                     )}
                 </div>

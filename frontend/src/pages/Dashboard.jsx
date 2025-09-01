@@ -44,6 +44,14 @@ export function Dashboard() {
                 </button>
 
                 <div className="flex flex-col space-y-4">
+
+                    <button
+                        onClick={()=>navigate("/inbox")}
+                        className="w-full px-5 py-3 bg-purple-700 hover:bg-purple-800 rounded-lg shadow-md transition-all duration-300"
+                    >
+                        Open Chats
+                    </button>
+
                     <button
                         onClick={()=>{
                             logout();
@@ -52,13 +60,6 @@ export function Dashboard() {
                         className="w-full px-5 py-3 bg-indigo-700 hover:bg-indigo-800 rounded-lg shadow-md transition-all duration-300"
                     >
                         Logout
-                    </button>
-
-                    <button
-                        onClick={()=>navigate("/inbox")}
-                        className="w-full px-5 py-3 bg-purple-700 hover:bg-purple-800 rounded-lg shadow-md transition-all duration-300"
-                    >
-                        Open Chats
                     </button>
                 </div>
             </div>

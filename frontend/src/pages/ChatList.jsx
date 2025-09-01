@@ -85,7 +85,7 @@ export function ChatList() {
                                     <span className="block text-gray-300 text-sm">
                                         {   
                                             chat.latestMessage?
-                                            `${chat.latestMessage.sender.username}: ${chat.latestMessage.content}`:
+                                            `${displayName}: ${chat.latestMessage.content}`:
                                             "Start Chatting"
                                         }
                                     </span>
