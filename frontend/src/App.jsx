@@ -9,6 +9,7 @@ import { ChatSection } from "./pages/ChatSection";
 import { CreateGroupChat } from "./pages/CreateGroupChat";
 import { CreatePrivateChat } from "./pages/CreatePrivateChat";
 import { EditGroupChat } from "./pages/EditGroupChat";
+import { AccountSettings } from "./pages/AccountSettings";
 
 function App(){
   
@@ -56,7 +57,13 @@ function App(){
           <ProtectedRoute>
               <EditGroupChat/>
           </ProtectedRoute>
-        }></Route>
+        }/>
+
+        <Route path="/accountSettings" element={
+          <ProtectedRoute>
+            <AccountSettings/>
+          </ProtectedRoute>
+        }/>
       
       </Routes>
     </BrowserRouter>

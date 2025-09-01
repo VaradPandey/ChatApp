@@ -73,6 +73,8 @@ export function ChatSection() {
     }
 
     const leaveGroupChat=async(chatId)=>{
+        if(!window.confirm("Are you sure you want to leave this group")) return;
+
         try{
             const res=await api.post(`/chat/${chatId}/exitGrpChat`);
             console.log(res.data.data)
@@ -83,7 +85,9 @@ export function ChatSection() {
     }
 
     const editMessage=async(msgId)=>{
-        if (!editText.trim()) return;
+        if(!window.confirm("Are you sure you want to delete this message?")) return;
+
+        if(!editText.trim()) return;
         try{
             const res=await api.post(`/message/${msgId}`,{ newText: editText });
             setMessages(prev=>prev.map(m=>m._id===msgId ?{...m,content: res.data.data.content }:m));

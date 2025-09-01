@@ -25,10 +25,6 @@ export function ChatList() {
         fetchChats();
     },[]);
 
-    useEffect(()=>{
-        console.log(chats);
-    },[chats]);
-
     if(loading) return <LoadingSpinner></LoadingSpinner>
 
     return (
@@ -50,25 +46,38 @@ export function ChatList() {
                 </button>
             </div>
 
-            <div className="space-y-4 max-w-2xl mx-auto">
-                {chats.map((chat,index)=>(
-                    <div
-                        key={index}
-                        onClick={()=>navigate(`/chatsection/${chat._id}`)}
-                        className="cursor-pointer bg-gray-800 hover:bg-gray-700 transition-all duration-300 rounded-xl p-4 shadow-md"
-                    >
-                        <span className="block text-lg font-semibold text-indigo-400 mb-1">
-                            {chat.isGrp?chat.chatName:chat.participants[1].username}
-                        </span>
-                        <span className="block text-gray-300">
-                            {
-                                chat.latestMessage?
-                                `${chat.latestMessage.sender.username}: ${chat.latestMessage.content}`:
-                                 'Start Chatting'
-                            }
-                        </span>
-                    </div>
-                ))}
+            <div className="space-y-4 max-w-3xl mx-auto">
+                {chats.map((chat,index)=>{
+                    const otherUser=!chat.isGrp?
+                    chat.participants.find(p=>p.username!==user.username):
+                    null;
+                    return(
+                        <div
+                            key={index}
+                            onClick={()=>navigate(`/chatsection/${chat._id}`)}
+                            className="cursor-pointer bg-gray-800 hover:bg-gray-700 transition-all duration-300 rounded-xl p-4 shadow-md flex items-center gap-4">
+
+                            <img 
+                                src={chat.isGrp?chat.grpImage:otherUser?.avatar} 
+                                alt="chat avatar" 
+                                className="w-12 h-12 rounded-full object-cover"
+                            />
+
+                            <div>
+                                <span className="block text-lg font-semibold text-indigo-400 mb-1">
+                                    {chat.isGrp?chat.chatName:otherUser?.username}
+                                </span>
+                                <span className="block text-gray-300 text-sm">
+                                    {
+                                        chat.latestMessage?
+                                        `${chat.latestMessage.sender.username}: ${chat.latestMessage.content}`:
+                                        'Start Chatting'
+                                    }
+                                </span>
+                            </div>
+                        </div>
+                    )
+                })}
             </div>
         </div>
     );
