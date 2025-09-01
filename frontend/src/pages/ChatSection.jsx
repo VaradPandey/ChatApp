@@ -1,5 +1,5 @@
 import { useEffect,useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate,useParams } from "react-router-dom";
 import api from "../api/axios.js";
 import { UserMessage } from "../components/messages/UserMessage.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
@@ -19,6 +19,9 @@ export function ChatSection() {
         messageType: "text",
         chatId
     });
+
+    const [editingMsgId,setEditingMsgId]=useState(null);
+    const [editText,setEditText]=useState("");
 
     useEffect(()=>{
         const fetchMessages=async()=>{
@@ -79,10 +82,31 @@ export function ChatSection() {
         }
     }
 
+    const editMessage=async(msgId)=>{
+        if (!editText.trim()) return;
+        try{
+            const res=await api.post(`/message/${msgId}`,{ newText: editText });
+            setMessages(prev=>prev.map(m=>m._id===msgId ?{...m,content: res.data.data.content }:m));
+            setEditingMsgId(null);
+            setEditText("");
+        }catch(error){
+            console.log("EDIT MESSAGE ERROR:",error);
+        }
+    };
+
+    const deleteMessage=async(msgId)=>{
+        try{
+            await api.post(`/message/${msgId}/del`);
+            setMessages(prev=>prev.filter(m=>m._id !== msgId));
+        }catch(error){
+            console.log("DELETE MESSAGE ERROR:",error);
+        }
+    };
+
     if (loading) return <LoadingSpinner></LoadingSpinner>
 
     return(
-        <div className="min-h-screen bg-gradient-to-br from-gray-900 via-indigo-950 to-purple-950 flex flex-col">
+        <div className="min-h-screen bg-gradient-to-br from-gray-900 via-indigo-950 to-purple-950 flex flex-col h-screen">
 
             {/* Top Bar */}
             <div className="flex items-center justify-between p-4 bg-gray-800 border-b border-gray-700">
@@ -126,13 +150,60 @@ export function ChatSection() {
 
             {/* Messages Container */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                {
-                    messages.map((message,index)=>(
-                        (message.sender.username===user.username)?
-                        <UserMessage key={index} message={message} index={index} />:
-                        <OtherUserMessage key={index} message={message} index={index} />
-                    ))
-                }
+                {messages.map((message, index)=>
+                    message.sender.username===user.username?(
+                    <div key={index} className="space-y-1 flex flex-col items-end">
+                        {editingMsgId===message._id?(
+                        <div className="flex items-center gap-2 p-2 rounded-lg shadow-md">
+                            <input
+                            type="text"
+                            value={editText}
+                            onChange={(e)=>setEditText(e.target.value)}
+                            className="flex-1 px-3 py-1 rounded-lg text-white focus:ring-2 focus:ring-purple-600"
+                            />
+                            <button
+                            onClick={()=>editMessage(message._id)}
+                            className="px-3 py-1 bg-purple-600 text-white rounded-lg text-sm"
+                            >
+                            Save
+                            </button>
+                            <button
+                            onClick={()=>{
+                                setEditingMsgId(null);
+                                setEditText("");
+                            }}
+                            className="px-3 py-1 text-white rounded-lg text-sm"
+                            >
+                            Cancel
+                            </button>
+                        </div>
+                        ):(
+                        <>
+                            <div className="flex gap-2 mb-1 px-3 py-1 rounded-lg shadow-md w-fit">
+                            <button
+                                onClick={()=>{
+                                setEditingMsgId(message._id);
+                                setEditText(message.content);
+                                }}
+                                className="text-xs text-purple-400 hover:underline"
+                            >
+                                Edit
+                            </button>
+                            <button
+                                onClick={()=>deleteMessage(message._id)}
+                                className="text-xs text-red-400 hover:underline"
+                            >
+                                Delete
+                            </button>
+                            </div>
+                            <UserMessage message={message} index={index} />
+                        </>
+                        )}
+                    </div>
+                    ):(
+                    <OtherUserMessage key={index} message={message} index={index} />
+                    )
+                )}
             </div>
 
             {/* Input Section */}
