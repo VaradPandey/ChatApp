@@ -24,7 +24,7 @@ const chatSchema=new mongoose.Schema({
         required: function(){
             return this.isGrp
         },
-        default: "https://us1.discourse-cdn.com/asana/optimized/3X/0/e/0e66ce17b14559e585bf19f090f67cca412a6b54_2_690x427.png"
+        default: "https://res.cloudinary.com/dtobpysyt/image/upload/v1756734487/4fd92857-58b6-4bdd-b9d4-4c33a32185ea.png"
     },
     latestMessage:{
         type: Schema.Types.ObjectId,

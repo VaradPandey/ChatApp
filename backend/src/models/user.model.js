@@ -18,7 +18,8 @@ const userSchema=new mongoose.Schema({
         required: true,
     },
     avatar:{
-        type:String //cloudinary url
+        type:String,
+        default: "https://res.cloudinary.com/dtobpysyt/image/upload/v1756734566/Screenshot_2025-09-01_191247_neldwb.png"
     },
     status:{
         type: String,
