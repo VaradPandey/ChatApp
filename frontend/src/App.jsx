@@ -1,4 +1,4 @@
-import {BrowserRouter,Routes,Route} from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Register } from "./pages/Register";
 import { Login } from "./pages/Login";
 import { Dashboard } from "./pages/Dashboard";
@@ -10,61 +10,75 @@ import { CreateGroupChat } from "./pages/CreateGroupChat";
 import { CreatePrivateChat } from "./pages/CreatePrivateChat";
 import { EditGroupChat } from "./pages/EditGroupChat";
 import { AccountSettings } from "./pages/AccountSettings";
+import { RedirectIfAuth } from "./components/RedirectIfAuth";
 
 function App(){
-  
-  return (
+  return(
     <BrowserRouter>
       <Routes>
-
         {/*Public Route*/}
-        <Route path="/" element={<Home/>}/>
-        <Route path="/register" element={<Register/>}/>
-        <Route path="/login" element={<Login/>}/>
+        <Route path="/" element={
+          <RedirectIfAuth>
+            <Home />
+          </RedirectIfAuth>
+        } />
+
+        <Route path="/login"
+          element={
+            <RedirectIfAuth>
+              <Login />
+            </RedirectIfAuth>
+          } />
+
+        <Route path="/register" element={
+          <RedirectIfAuth>
+            <Register />
+          </RedirectIfAuth>
+        } />
 
         {/*Protected Route*/}
         <Route path="/dashboard" element={
           <ProtectedRoute>
-            <Dashboard/>
+            <Dashboard />
           </ProtectedRoute>
-        }/>
+        } />
 
         <Route path="/inbox" element={
           <ProtectedRoute>
-            <ChatList/>
+            <ChatList />
           </ProtectedRoute>
-        }/>
+        } />
 
         <Route path="/chatsection/:chatId" element={
           <ProtectedRoute>
-            <ChatSection/>
+            <ChatSection />
           </ProtectedRoute>
-        }/>
+        } />
 
         <Route path="/createGroupChat" element={
           <ProtectedRoute>
-            <CreateGroupChat/>
+            <CreateGroupChat />
           </ProtectedRoute>
-        }/>
+        } />
 
         <Route path="/createPrivateChat" element={
           <ProtectedRoute>
-            <CreatePrivateChat/>
+            <CreatePrivateChat />
           </ProtectedRoute>
-        }/>
+        } />
 
         <Route path="/editgrpsettings/:chatId" element={
           <ProtectedRoute>
-              <EditGroupChat/>
+            <EditGroupChat />
           </ProtectedRoute>
-        }/>
+        } />
 
         <Route path="/accountSettings" element={
           <ProtectedRoute>
-            <AccountSettings/>
+            <AccountSettings />
           </ProtectedRoute>
-        }/>
-      
+        } />
+
       </Routes>
     </BrowserRouter>
   )

@@ -11,7 +11,7 @@ export function Dashboard() {
         console.log("User data:",user);
     },[user]);
 
-    if (!user) return <LoadingSpinner></LoadingSpinner>;
+    if (!user) return <LoadingSpinner/>;
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-900 via-indigo-950 to-purple-950 text-white flex flex-col items-center justify-center px-6">

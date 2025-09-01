@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import api from "../api/axios.js";
 import { useNavigate } from "react-router-dom";
 
@@ -36,6 +36,19 @@ export function CreateGroupChat() {
             console.log('Submit Fail Catch Block Error: ',error);
         }
     }
+
+    useEffect(()=>{
+        const handleBackButton=(e)=>{
+            e.preventDefault();
+            navigate("/inbox",{ replace: true });
+        };
+
+        window.addEventListener("popstate",handleBackButton);
+
+        return ()=>{
+            window.removeEventListener("popstate",handleBackButton);
+        };
+    },[navigate]);
 
     return (
         <div className="w-full min-h-screen bg-gradient-to-br from-gray-900 via-indigo-950 to-purple-950 text-white flex items-center justify-center">

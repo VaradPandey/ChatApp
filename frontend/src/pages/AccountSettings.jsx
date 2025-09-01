@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api/axios.js";
 import { useAuth } from "../context/AuthContext.jsx";
@@ -81,6 +81,19 @@ export function AccountSettings() {
         }
         setLoading(false);
     };
+
+    useEffect(()=>{
+        const handleBackButton=(e)=>{
+            e.preventDefault();
+            navigate("/dashboard",{ replace: true });
+        };
+
+        window.addEventListener("popstate",handleBackButton);
+
+        return ()=>{
+            window.removeEventListener("popstate",handleBackButton);
+        };
+    },[navigate]);
 
     if(loading) return <LoadingSpinner></LoadingSpinner>;
 

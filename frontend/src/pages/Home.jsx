@@ -1,7 +1,21 @@
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 export function Home() {
     const navigate = useNavigate();
+
+    useEffect(()=>{
+        const handleBackButton=(e)=>{
+            e.preventDefault();
+            navigate("/",{ replace: true });
+        };
+
+        window.addEventListener("popstate",handleBackButton);
+
+        return ()=>{
+            window.removeEventListener("popstate",handleBackButton);
+        };
+    },[navigate]);
 
     return (
         <div className="min-h-screen flex justify-center items-center bg-gradient-to-br from-gray-900 via-indigo-950 to-purple-950 text-white px-6">

@@ -25,6 +25,19 @@ export function ChatList() {
         fetchChats();
     },[]);
 
+    useEffect(()=>{
+        const handleBackButton=(e)=>{
+            e.preventDefault();
+            navigate("/dashboard",{ replace: true });
+        };
+
+        window.addEventListener("popstate",handleBackButton);
+
+        return ()=>{
+            window.removeEventListener("popstate",handleBackButton);
+        };
+    },[navigate]);
+
     if(loading) return <LoadingSpinner />;
 
     return (

@@ -56,6 +56,19 @@ export function ChatSection() {
         setNewContent(prev=>({ ...prev,[event.target.name]: event.target.value }))
     }
 
+    useEffect(()=>{
+        const handleBackButton=(e)=>{
+            e.preventDefault();
+            navigate('/inbox',{ replace: true });
+        };
+
+        window.addEventListener("popstate",handleBackButton);
+
+        return ()=>{
+            window.removeEventListener("popstate",handleBackButton);
+        };
+    },[navigate]);
+
     const handleSubmitContent=async(event)=>{
         event.preventDefault();
         if(!newContent.content.trim()) return;

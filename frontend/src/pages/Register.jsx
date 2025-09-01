@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import api from "../api/axios.js";
 import { useNavigate } from "react-router-dom";
 
@@ -26,6 +26,19 @@ export function Register() {
     const handleChange=(event)=>{
         setForm((form)=>({ ...form,[event.target.name]: event.target.value }));
     };
+
+    useEffect(()=>{
+        const handleBackButton=(e)=>{
+            e.preventDefault();
+            navigate("/",{ replace: true });
+        };
+
+        window.addEventListener("popstate",handleBackButton);
+
+        return ()=>{
+            window.removeEventListener("popstate",handleBackButton);
+        };
+    },[navigate]);
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-indigo-950 to-purple-950">

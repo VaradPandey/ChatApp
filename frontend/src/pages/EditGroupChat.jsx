@@ -96,6 +96,19 @@ export function EditGroupChat() {
         }
     };
 
+    useEffect(()=>{
+        const handleBackButton=(e)=>{
+            e.preventDefault();
+            navigate(`/chatsection/${chatId}`,{ replace: true });
+        };
+
+        window.addEventListener("popstate",handleBackButton);
+
+        return ()=>{
+            window.removeEventListener("popstate",handleBackButton);
+        };
+    },[navigate]);
+
     if(!chatInfo) return <LoadingSpinner></LoadingSpinner>
 
     if(loading) return <LoadingSpinner></LoadingSpinner>
