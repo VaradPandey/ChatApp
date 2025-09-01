@@ -4,6 +4,7 @@ import api from "../api/axios.js";
 import { UserMessage } from "../components/messages/UserMessage.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 import { OtherUserMessage } from "../components/messages/OtherUserMessage.jsx";
+import { LoadingSpinner } from "../components/LoadingSpinner.jsx";
 
 export function ChatSection() {
     const { chatId }=useParams();
@@ -78,7 +79,7 @@ export function ChatSection() {
         }
     }
 
-    if (loading) return <p className="text-center text-white text-xl">Loading Chat Messages...</p>
+    if (loading) return <LoadingSpinner></LoadingSpinner>
 
     return(
         <div className="min-h-screen bg-gradient-to-br from-gray-900 via-indigo-950 to-purple-950 flex flex-col">

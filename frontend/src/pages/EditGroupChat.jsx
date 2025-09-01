@@ -96,7 +96,7 @@ export function EditGroupChat() {
         }
     };
 
-    if(!chatInfo) return <p className="text-white p-4">Loading group info...</p>;
+    if(!chatInfo) return <LoadingSpinner></LoadingSpinner>
 
     if(loading) return <LoadingSpinner></LoadingSpinner>
 

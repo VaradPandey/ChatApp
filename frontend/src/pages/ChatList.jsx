@@ -2,6 +2,7 @@ import { useEffect,useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import api from "../api/axios.js";
 import { useNavigate } from "react-router-dom";
+import { LoadingSpinner } from "../components/LoadingSpinner.jsx";
 
 export function ChatList() {
     const [chats,setChats]=useState([]);
@@ -28,9 +29,7 @@ export function ChatList() {
         console.log(chats);
     },[chats]);
 
-    if(loading){
-        return <p className="text-center text-white text-xl">Loading Chats...</p>;
-    }
+    if(loading) return <LoadingSpinner></LoadingSpinner>
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-900 via-indigo-950 to-purple-950 text-white p-6">
