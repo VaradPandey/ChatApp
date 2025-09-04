@@ -96,16 +96,22 @@ export function ChatList() {
                                         {displayName}
                                     </span>
                                     <span className="block text-gray-300 text-sm">
-                                        {
-                                            chat.latestMessage?(
-                                                chat.isGrp?
-                                                `${chat.latestMessage.sender?.username || "Deleted User"}: ${chat.latestMessage.content}`:
-                                                `${otherUser ? otherUser.username : "Deleted User"}: ${chat.latestMessage.content}`
+                                        {chat.latestMessage?(
+                                            chat.isGrp?(
+                                            <>
+                                                {chat.latestMessage.sender?.username || "Deleted User"}:
+                                                {" "}
+                                                {chat.latestMessage.content}
+                                            </>
                                             ):(
-                                                    "Start Chatting"
+                                            <>
+                                                {chat.latestMessage.sender?.username || "Deleted User"}: {chat.latestMessage.content}
+                                            </>
                                             )
-                                        }
-                                        </span>
+                                        ) : (
+                                            "Start Chatting"
+                                        )}
+                                    </span>
                                 </div>
                             </div>
                         );

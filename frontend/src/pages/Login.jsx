@@ -26,6 +26,7 @@ export function Login() {
             navigate('/dashboard');
         }
         catch(error){
+            alert('Invalid Login Credentials');
             if(error.response){
                 console.log("Login Error: ",error.response.data);
             }else if(error.request){
