@@ -3,8 +3,9 @@ import { useAuth } from "../context/AuthContext";
 import api from "../api/axios.js";
 import { useNavigate } from "react-router-dom";
 import { LoadingSpinner } from "../components/LoadingSpinner.jsx";
+import socket from "../api/socket.js";
 
-export function ChatList() {
+export function ChatList(){
     const [chats,setChats]=useState([]);
     const [loading,setLoading]=useState(true);
     const { user }=useAuth();
@@ -23,7 +24,27 @@ export function ChatList() {
         };
 
         fetchChats();
+
+
     },[]);
+
+    useEffect(()=>{
+        socket.on("newChatFromBackend",({chat})=>{
+            if(chat.participants.some(p=>p._id===user._id)){
+                setChats(prev=>{
+                    if(!prev.find(c=>c._id===chat._id)){
+                        return [chat,...prev];
+                    }
+                    return prev;
+                });
+            }
+        });
+
+        return()=>{
+            socket.off("newChatFromBackend");
+        };
+    },[user._id]);
+
 
     useEffect(()=>{
         const handleBackButton=(e)=>{
@@ -33,14 +54,14 @@ export function ChatList() {
 
         window.addEventListener("popstate",handleBackButton);
 
-        return ()=>{
+        return()=>{
             window.removeEventListener("popstate",handleBackButton);
         };
     },[navigate]);
 
     if(loading) return <LoadingSpinner />;
 
-    return (
+    return(
         <div className="min-h-screen bg-gradient-to-br from-gray-900 via-indigo-950 to-purple-950 text-white p-6 relative">
 
             {/* Main Content */}
@@ -80,7 +101,7 @@ export function ChatList() {
                             "/images/default.png":
                             otherUser.avatar;
 
-                        return (
+                        return(
                             <div
                                 key={index}
                                 onClick={()=>navigate(`/chatsection/${chat._id}`)}
@@ -108,7 +129,7 @@ export function ChatList() {
                                                 {chat.latestMessage.sender?.username || "Deleted User"}: {chat.latestMessage.content}
                                             </>
                                             )
-                                        ) : (
+                                        ) :(
                                             "Start Chatting"
                                         )}
                                     </span>
@@ -126,4 +147,3 @@ export function ChatList() {
         </div>
     );
 }
-

@@ -19,7 +19,7 @@ export function CreatePrivateChat(){
         event.preventDefault()
         try{
             const res=await api.post('/chat/createPrivateChat',body)
-            console.log(res.data.data)
+            socket.emit("newChatFromFrontend",{ chat: res.data.data});
             navigate('/inbox')
         }
         catch(error){

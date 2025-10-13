@@ -40,6 +40,10 @@ io.on("connection",(socket)=>{
         io.emit("exitGrpFromBackend",data)
     });
 
+    socket.on("newChatFromFrontend",(data)=>{
+        io.emit("newChatFromBackend",data)
+    })
+
     socket.on("disconnect",()=>{
         console.log("User disconnected:",socket.id);
     });

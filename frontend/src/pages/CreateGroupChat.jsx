@@ -1,6 +1,7 @@
 import { useState,useEffect } from "react";
 import api from "../api/axios.js";
 import { useNavigate } from "react-router-dom";
+import socket from "../api/socket.js";
 
 export function CreateGroupChat() {
     const [userArr,setUserArr]=useState([]);
@@ -30,7 +31,7 @@ export function CreateGroupChat() {
         if(userArr.length===0 || !body.chatName.trim()) return;
         try{
             const res=await api.post('/chat/createGroupChat',body);
-            console.log(res.data.data);
+            socket.emit("newChatFromFrontend",{ chat: res.data.data});
         }
         catch(error){
             console.log('Submit Fail Catch Block Error: ',error);
