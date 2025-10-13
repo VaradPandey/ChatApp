@@ -16,7 +16,7 @@ const server=http.createServer(app);
 const io=new Server(server,{
     cors:{
         origin: process.env.CORS_ORIGIN,
-        methods: ["GET","POST","PUT"],
+        methods: ["GET","POST","PUT","DELETE"],
         credentials: true
     }
 })
@@ -24,16 +24,25 @@ const io=new Server(server,{
 io.on("connection",(socket)=>{
     console.log("User Connected: ",socket.id);
 
-    socket.on("msgFromReact",(msg)=>{
-        console.log("Message Recieved From Frontend: ",msg);
-
-        io.emit("msgForReact",msg)
+    socket.on("msgFromFrontend",(data)=>{
+        io.emit("msgFromBackend",data)
     })
+
+    socket.on("editMsgFromFrontend",(data)=>{
+        io.emit("editMsgFromBackend",data)
+    });
+
+    socket.on("deleteMsgFromFrontend",(data)=>{
+        io.emit("deleteMsgFromBackend",data)
+    });
+
+    socket.on("exitGrpFromFrontend",(data)=>{
+        io.emit("exitGrpFromBackend",data)
+    });
 
     socket.on("disconnect",()=>{
         console.log("User disconnected:",socket.id);
     });
-
 })
 
 connectDb()
