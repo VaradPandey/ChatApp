@@ -5,6 +5,7 @@ import { UserMessage } from "../components/messages/UserMessage.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 import { OtherUserMessage } from "../components/messages/OtherUserMessage.jsx";
 import { LoadingSpinner } from "../components/LoadingSpinner.jsx";
+import socket from "../api/socket.js";
 
 export function ChatSection() {
     const { chatId }=useParams();
@@ -52,6 +53,35 @@ export function ChatSection() {
         fetchChatInfo();
     },[]);
 
+    useEffect(()=>{
+        socket.on("msgFromBackend",({msg,chatId:updatedChatId})=>{
+            if(updatedChatId!==chatId) return;
+            setMessages(prev=>[...prev,msg]);
+        })
+
+        socket.on("editMsgFromBackend",({msgId,newContent,chatId:updatedChatId})=>{
+            if(updatedChatId!==chatId) return;
+            setMessages(prev=>prev.map(m=>m._id=== msgId?{...m,content:newContent}:m));
+        })
+
+        socket.on("deleteMsgFromBackend",({msgId,chatId:updatedChatId})=>{
+            if(updatedChatId!==chatId) return;
+            setMessages(prev=>prev.filter(m=>m._id!==msgId));
+        });
+
+        socket.on("exitGrpFromBackend",({userId,chatId:updatedChatId})=>{
+            if(updatedChatId!==chatId) return;
+        })
+
+        return()=>{
+            socket.off("msgFromBackend");
+            socket.off("editMsgFromBackend");
+            socket.off("deleteMsgFromBackend");
+            socket.off("exitGrpFromBackend");
+        }
+
+    },[chatId])
+
     const handleChange=(event)=>{
         setNewContent(prev=>({ ...prev,[event.target.name]: event.target.value }))
     }
@@ -75,9 +105,12 @@ export function ChatSection() {
 
         try{
             const res=await api.post('/message/createMessage',newContent);
-            setMessages(prev=>[...prev,res.data.data]);
             setNewContent({ content: "",messageType: "text",chatId });
-            console.log(res.data.data);
+            
+            socket.emit("msgFromFrontend",{
+                msg:res.data.data,
+                chatId
+            })
         }
         catch(error){
             console.log('CATCH BLOCK ERROR: ',error);
@@ -89,7 +122,10 @@ export function ChatSection() {
 
         try{
             const res=await api.post(`/chat/${chatId}/exitGrpChat`);
-            console.log(res.data.data)
+            socket.emit("exitGrpFromFrontend",{
+                userId: user._id,
+                chatId,
+            })
             navigate('/inbox')
         }catch(error){
             console.log('CATCH BLOCK LEAVE GROUP CHAT ERROR: ',error);
@@ -104,6 +140,11 @@ export function ChatSection() {
             setMessages(prev=>prev.map(m=>m._id===msgId ? {...m,content: res.data.data.content} : m));
             setEditingMsgId(null);
             setEditText("");
+            socket.emit("editMsgFromFrontend",{
+                msgId,
+                newContent: res.data.data.content,
+                chatId
+            })
         }catch(error){
             console.log("EDIT MESSAGE ERROR:",error);
         }
@@ -115,6 +156,10 @@ export function ChatSection() {
         try{
             await api.post(`/message/${msgId}/del`);
             setMessages(prev=>prev.filter(m=>m._id !== msgId));
+            socket.emit("deleteMsgFromFrontend",{
+                msgId,
+                chatId
+            })
         }catch(error){
             console.log("DELETE MESSAGE ERROR:",error);
         }
