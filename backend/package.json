@@ -5,6 +5,7 @@
   "description": "My Personal Chat App Project",
   "main": "src/index.js",
   "scripts": {
+    "start": "node -r dotenv/config --experimental-json-modules src/index.js",
     "dev": "nodemon -r dotenv/config --experimental-json-modules src/index.js"
   },
   "keywords": [
