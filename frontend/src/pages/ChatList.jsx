@@ -85,6 +85,22 @@ export function ChatList(){
         };
     }, [user._id]);
 
+    useEffect(()=>{
+        const handleNewMessage=({ msg, chatId: updatedChatId })=>{
+            setChats(prev=>
+                prev.map(chat=>
+                    chat._id===updatedChatId?{...chat,latestMessage: msg}:chat
+                )
+            );
+        };
+
+        socket.on("msgFromBackend",handleNewMessage);
+
+        return()=>{
+            socket.off("msgFromBackend",handleNewMessage);
+        };
+    },[user._id]);
+
 
     useEffect(()=>{
         const handleBackButton=(e)=>{
