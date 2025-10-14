@@ -7,8 +7,10 @@ export function SocketProvider({children}){
 
     const [socket,setSocket]=useState(null);
 
+    const socketURI=import.meta.VITE_BACKEND_URL||'http://localhost:8000'
+
     useEffect(()=>{
-        const newSocket=io("http://localhost:3000",{withCredentials: true});
+        const newSocket=io(socketURI,{withCredentials: true});
 
         setSocket(newSocket);
 
