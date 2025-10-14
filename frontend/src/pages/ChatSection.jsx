@@ -1,4 +1,4 @@
-import { useEffect,useState } from "react";
+import { useEffect,useState,useRef } from "react";
 import { useNavigate,useParams } from "react-router-dom";
 import api from "../api/axios.js";
 import { UserMessage } from "../components/messages/UserMessage.jsx";
@@ -7,6 +7,7 @@ import { OtherUserMessage } from "../components/messages/OtherUserMessage.jsx";
 import { LoadingSpinner } from "../components/LoadingSpinner.jsx";
 import socket from "../api/socket.js";
 
+
 export function ChatSection() {
     const { chatId }=useParams();
     const [messages,setMessages]=useState([]);
@@ -14,6 +15,8 @@ export function ChatSection() {
     const [chatInfo,setChatInfo]=useState({});
     const { user }=useAuth();
     const navigate=useNavigate();
+
+    const messagesEndRef=useRef(null);
 
     const [newContent,setNewContent]=useState({
         content: "",
@@ -184,6 +187,10 @@ export function ChatSection() {
         }
     };
 
+    useEffect(()=>{
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth"});
+    },[messages]);
+
     if (loading) return <LoadingSpinner></LoadingSpinner>
 
     return(
@@ -303,6 +310,7 @@ export function ChatSection() {
                         <OtherUserMessage key={index} message={message} index={index} />
                     )
                 })}
+                <div ref={messagesEndRef} />
             </div>
 
             {/* Input Section */}
