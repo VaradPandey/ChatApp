@@ -21,11 +21,25 @@ const io=new Server(server,{
     }
 })
 
+const onlineUsers=new Map();
+
 io.on("connection",(socket)=>{
     console.log("User Connected: ",socket.id);
 
+    socket.on("userOnlineFromFrontend",(userId)=>{
+        if(!userId) return;
+        onlineUsers.set(userId,socket.id);
+        io.emit("userOnlineFromBackend",Array.from(onlineUsers.keys()));
+    });
+
+    socket.on("userOfflineFromFrontend",(userId)=>{
+        if (!userId) return;
+        onlineUsers.delete(userId);
+        io.emit("userOnlineFromBackend",Array.from(onlineUsers.keys()));
+    });
+
     socket.on("msgFromFrontend",(data)=>{
-        io.emit("msgFromBackend",data)
+        io.emit("msgFromBackend",data)  
     })
 
     socket.on("editMsgFromFrontend",(data)=>{
@@ -65,6 +79,13 @@ io.on("connection",(socket)=>{
     })
 
     socket.on("disconnect",()=>{
+        for (const [userId,id] of onlineUsers.entries()) {
+            if (id===socket.id) {
+                onlineUsers.delete(userId);
+                break;
+            }
+        }
+        io.emit("userOnlineFromBackend",Array.from(onlineUsers.keys()));
         console.log("User disconnected:",socket.id);
     });
 })
@@ -79,3 +100,4 @@ connectDb()
     console.log(err);
 });
 
+export {onlineUsers}

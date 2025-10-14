@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react"
 import api from "../api/axios.js"
+import socket from "../api/socket.js"
 
 const AuthContext=createContext()
 
@@ -31,6 +32,23 @@ export function AuthProvider({children}){
         })
         .finally(()=>setLoading(false))
     },[])
+
+    useEffect(() => {
+        if (!user?._id) return;
+
+        socket.emit("userOnlineFromFrontend",user._id);
+
+        const handleBeforeUnload=()=>{
+            socket.emit("userOfflineFromFrontend",user._id);
+        };
+
+        window.addEventListener("beforeunload",handleBeforeUnload);
+
+        return()=>{
+            window.removeEventListener("beforeunload",handleBeforeUnload);
+            socket.emit("userOfflineFromFrontend",user._id);
+        };
+    },[user?._id]);
 
     return (
         <AuthContext.Provider value={{user,setUser,logout,loading}}>

@@ -6,6 +6,8 @@ import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { Chat } from "../models/chat.model.js";
 import { Message } from "../models/message.model.js";
 
+import { onlineUsers } from "../index.js";
+
 const registerUser=asyncHandler(async(req,res)=>{
     const {username,email,password}=req.body;
 
@@ -251,6 +253,17 @@ const authMe=asyncHandler(async(req,res)=>{
     .json(new ApiResponse(200,user,"User Fetched"));
 });
 
+const getOnlineUsers=asyncHandler(async(req,res)=>{
+    const onlineUserIds=Array.from(onlineUsers.keys());
+    if(!onlineUserIds){
+        throw new ApiError(404,"Error fetching online users");
+    }
+
+    return res
+    .status(200)
+    .json(new ApiResponse(200,onlineUserIds,"Online Users Fetched"));
+});
+
 export {
     registerUser,
     loginUser,
@@ -260,5 +273,6 @@ export {
     changePassword,
     changeAvatar,
     deleteUser,
-    authMe
+    authMe,
+    getOnlineUsers
 }

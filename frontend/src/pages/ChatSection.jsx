@@ -7,6 +7,33 @@ import { OtherUserMessage } from "../components/messages/OtherUserMessage.jsx";
 import { LoadingSpinner } from "../components/LoadingSpinner.jsx";
 import socket from "../api/socket.js";
 
+export function useOnlineUsers() {
+    const [onlineUserIds,setOnlineUserIds]=useState([]);
+    const {user}=useAuth();
+
+    useEffect(()=>{
+        const fetchOnlineUsers=async ()=>{
+            try {
+                const res=await api.get("/user/online");
+                setOnlineUserIds(res.data.data);
+            } catch (err) {
+                console.log("Error fetching online users",err);
+            }
+        };
+
+        fetchOnlineUsers();
+
+        socket.on("userOnlineFromBackend",(ids)=>{
+            setOnlineUserIds(ids);
+        });
+
+        return()=>{
+            socket.off("userOnlineFromBackend");
+        };
+    },[user?._id]);
+
+    return onlineUserIds;
+}
 
 export function ChatSection() {
     const { chatId }=useParams();
@@ -17,6 +44,8 @@ export function ChatSection() {
     const navigate=useNavigate();
 
     const messagesEndRef=useRef(null);
+
+    const onlineUserIds=useOnlineUsers();
 
     const [newContent,setNewContent]=useState({
         content: "",
@@ -216,17 +245,19 @@ export function ChatSection() {
                                 {
                                     chatInfo.isGrp?
                                     chatInfo.chatName:
-                                    chatInfo.participants?.find(p => p.username !== user.username)?.username
+                                    chatInfo.participants?.find(p=>p.username !== user.username)?.username
                                     ||"Deleted User"
                                 }
                             </span>
                             <span className="text-sm text-gray-400">
                                 {
                                     chatInfo.isGrp?
-                                    `${chatInfo.participants.filter(p => p.isOnline).length} online`:
-                                    chatInfo.participants?.find(p => p.username !== user.username)?.isOnline?
-                                    "Online":
-                                    "Offline"
+                                    `${chatInfo.participants.filter(p=>onlineUserIds.includes(p._id)).length} online`:
+                                    onlineUserIds.includes(
+                                        chatInfo.participants?.find(p=>p.username!==user.username)?._id
+                                    )?
+                                    "🟢 Online":
+                                    "🔴 Offline"
                                 }
                             </span>
                         </div>
