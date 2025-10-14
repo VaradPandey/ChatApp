@@ -8,7 +8,7 @@ import socket from "../api/socket.js";
 export function ChatList(){
     const [chats,setChats]=useState([]);
     const [loading,setLoading]=useState(true);
-    const { user }=useAuth();
+    const {user,setUser}=useAuth();
     const navigate=useNavigate();
 
     useEffect(()=>{
@@ -44,6 +44,46 @@ export function ChatList(){
             socket.off("newChatFromBackend");
         };
     },[user._id]);
+
+    useEffect(()=>{
+        const handleChatUpdate=({chatId:updatedChatId,updatedChat})=>{
+            setChats(prev=>prev.map(c=>c._id===updatedChatId?updatedChat:c));
+        };
+
+        socket.on("editGrpNameFromBackend",handleChatUpdate);
+        socket.on("editGrpIconFromBackend",handleChatUpdate);
+        socket.on("addMembersFromBackend",handleChatUpdate);
+        socket.on("removeMembersFromBackend",handleChatUpdate);
+
+        return()=>{
+            socket.off("editGrpNameFromBackend",handleChatUpdate);
+            socket.off("editGrpIconFromBackend",handleChatUpdate);
+            socket.off("addMembersFromBackend",handleChatUpdate);
+            socket.off("removeMembersFromBackend",handleChatUpdate);
+        }
+    },[user._id]);
+
+    useEffect(()=>{
+        const handleUserUpdate=(updatedUser)=>{
+            if(updatedUser._id===user._id){
+                setUser(prev=>({...prev,...updatedUser}));
+            }
+
+            setChats(prev=>{
+                prev.map(chat=>({
+                    ...chat,
+                    participants: chat.participants?.map(p=>{
+                        p._id===updatedUser._id?{...p,...updatedUser}:p
+                    })||[]
+                }))
+            });
+        };
+
+        socket.on("userUpdateFromBackend", handleUserUpdate);
+        return ()=>{
+            socket.off("userUpdateFromBackend", handleUserUpdate);
+        };
+    }, [user._id]);
 
 
     useEffect(()=>{

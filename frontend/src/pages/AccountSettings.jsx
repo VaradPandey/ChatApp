@@ -3,9 +3,10 @@ import { useNavigate } from "react-router-dom";
 import api from "../api/axios.js";
 import { useAuth } from "../context/AuthContext.jsx";
 import { LoadingSpinner } from "../components/LoadingSpinner.jsx";
+import socket from "../api/socket.js";
 
 export function AccountSettings() {
-    const { user,logout }=useAuth();
+    const { user,logout,setUser }=useAuth();
     const navigate=useNavigate();
 
     const [newAvatar,setNewAvatar]=useState(null);
@@ -13,6 +14,19 @@ export function AccountSettings() {
     const [newEmail,setNewEmail]=useState("");
     const [newPassword,setNewPassword]=useState("");
     const [loading,setLoading]=useState(false);
+
+    useEffect(()=>{
+        const handleUserUpdate=(updatedUser)=>{
+            if(updatedUser._id===user._id){
+                setUser(prev=>({...prev,...updatedUser }));
+            }
+        };
+
+        socket.on("userUpdateFromBackend", handleUserUpdate);
+        return ()=>{
+            socket.off("userUpdateFromBackend", handleUserUpdate);
+        }
+    },[user._id]);
 
     const handleAvatarChange=async()=>{
         if (!newAvatar) return alert("Select an image first");
@@ -25,8 +39,8 @@ export function AccountSettings() {
             const res=await api.post(`/user/changeAvatar`,formData,{
                 headers: { "Content-Type": "multipart/form-data" },
             });
-            console.log(res.data.data)
-            window.location.reload();
+            socket.emit("userUpdateFromFrontend",res.data.data);
+            setNewAvatar(null);
         }catch(error){
             console.error("CHANGE AVATAR ERROR:",err);
             alert("Failed to change avatar");
@@ -43,8 +57,9 @@ export function AccountSettings() {
                 username: newUsername.trim() || undefined,
                 email: newEmail.trim() || undefined,
             });
-            console.log(res.data.data)
-            window.location.reload();
+            socket.emit("userUpdateFromFrontend",res.data.data);
+            setNewUsername("");
+            setNewEmail("");
         }catch(error){
             console.error("CHANGE DETAILS ERROR:",err);
             alert("Failed to update details");

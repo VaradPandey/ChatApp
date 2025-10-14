@@ -3,6 +3,7 @@ import { useNavigate,useParams } from "react-router-dom";
 import api from "../api/axios.js";
 import { useAuth } from "../context/AuthContext.jsx";
 import { LoadingSpinner } from "../components/LoadingSpinner.jsx";
+import socket from "../api/socket.js";
 
 export function EditGroupChat() {
     const { chatId }=useParams();
@@ -37,13 +38,13 @@ export function EditGroupChat() {
         fetchChatInfo();
     },[chatId]);
 
-
     const handleNameChange=async()=>{
         if(!newNameBody.newName.trim()) return;
         try{
-            await api.put(`/chat/${chatId}/editGrpName`,newNameBody);
+            const res=await api.put(`/chat/${chatId}/editGrpName`,newNameBody);
+            socket.emit("editGrpNameFromFrontend",{chatId,updatedChat:res.data.data});
+            setChatInfo(res.data.data);
             setNewNameBody({ newName: "" });
-            window.location.reload();
         }catch(err){
             console.log("EDIT NAME ERROR:",err);
         }
@@ -62,8 +63,8 @@ export function EditGroupChat() {
             });
             console.log(res.data);
             setChatInfo((prev)=>({...prev,grpImage: res.data.data.grpImage }));
+            socket.emit("editGrpIconFromFrontend",{chatId,updatedChat:res.data.data});
             setNewGrpImage(null);
-            window.location.reload();
         }catch(error){
             console.error(error);
             alert("Upload failed");
@@ -76,9 +77,9 @@ export function EditGroupChat() {
     const handleAddMembers=async()=>{
         if(addUsernames.usernames.length===0) return;
         try{
-            await api.post(`/chat/${chatId}/addMembers`,addUsernames);
+            const res=await api.post(`/chat/${chatId}/addMembers`,addUsernames);
+            socket.emit("addMembersFromFrontend",{chatId,updatedChat:res.data.data});
             setAddUsernames({ usernames: [] });
-            window.location.reload();
         }catch(err){
             console.log("ADD MEMBERS ERROR:",err);
         }
@@ -88,9 +89,9 @@ export function EditGroupChat() {
         if(removeUsernames.usernames.length===0) return;
 
         try{
-            await api.post(`/chat/${chatId}/removeMembers`,removeUsernames);
+            const res=await api.post(`/chat/${chatId}/removeMembers`,removeUsernames);
+            socket.emit("removeMembersFromFrontend",{chatId,updatedChat:res.data.data});
             setRemoveUsernames({ usernames: [] });
-            window.location.reload();
         }catch(err){
             console.log("REMOVE MEMBERS ERROR:",err);
         }

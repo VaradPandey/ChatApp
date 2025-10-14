@@ -44,6 +44,26 @@ io.on("connection",(socket)=>{
         io.emit("newChatFromBackend",data)
     })
 
+    socket.on("editGrpNameFromFrontend",(data)=>{
+        io.emit("editGrpNameFromBackend",data);
+    });
+
+    socket.on("editGrpIconFromFrontend",(data)=>{
+        io.emit("editGrpIconFromBackend",data);
+    });
+
+    socket.on("addMembersFromFrontend",(data)=>{
+        io.emit("addMembersFromBackend",data);
+    });
+
+    socket.on("removeMembersFromFrontend",(data)=>{
+        io.emit("removeMembersFromBackend",data);
+    });
+
+    socket.on("userUpdateFromFrontend",(data)=>{
+        io.emit("userUpdateFromBackend",data)
+    })
+
     socket.on("disconnect",()=>{
         console.log("User disconnected:",socket.id);
     });

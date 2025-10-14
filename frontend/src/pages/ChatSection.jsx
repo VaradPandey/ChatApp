@@ -82,6 +82,25 @@ export function ChatSection() {
 
     },[chatId])
 
+    useEffect(()=>{
+        const handleChatUpdate=({chatId:updatedChatId,updatedChat})=>{
+            if(updatedChatId!==chatId) return;
+            setChatInfo(updatedChat);
+        };
+
+        socket.on("editGrpNameFromBackend",handleChatUpdate);
+        socket.on("editGrpIconFromBackend",handleChatUpdate);
+        socket.on("addMembersFromBackend",handleChatUpdate);
+        socket.on("removeMembersFromBackend",handleChatUpdate);
+
+        return()=>{
+            socket.off("editGrpNameFromBackend");
+            socket.off("editGrpIconFromBackend");
+            socket.off("addMembersFromBackend");
+            socket.off("removeMembersFromBackend");
+        }
+    },[chatId]);
+
     const handleChange=(event)=>{
         setNewContent(prev=>({ ...prev,[event.target.name]: event.target.value }))
     }
