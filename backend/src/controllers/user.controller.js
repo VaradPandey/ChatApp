@@ -73,8 +73,9 @@ const loginUser=asyncHandler(async (req,res)=>{
 
     res.cookie("accessToken", token, {
         httpOnly: true,
-        secure: false,
-        maxAge: 24*60*60*1000 // 1 day
+        secure: process.env.NODE_ENV==="production",
+        sameSite: process.env.NODE_ENV==="production"?"None":"Lax",
+        maxAge: 24*60*60*1000
     });
 
     //remove password field from user and return it
@@ -96,7 +97,8 @@ const getUserProfile=asyncHandler(async (req,res)=>{
 const logoutUser=asyncHandler(async (req,res)=>{
      res.clearCookie("accessToken",{
         httpOnly: true,
-        secure: false,
+        secure: process.env.NODE_ENV==="production",
+        sameSite: process.env.NODE_ENV==="production"?"None":"Lax",
      });
 
      return res.status(200).json({message: "User logged Out"});
