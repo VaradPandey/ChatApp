@@ -14,7 +14,7 @@ import { RedirectIfAuth } from "./components/RedirectIfAuth";
 
 function App(){
   return(
-    <BrowserRouter>
+    <BrowserRouter basename="/">
       <Routes>
         {/*Public Route*/}
         <Route path="/" element={
